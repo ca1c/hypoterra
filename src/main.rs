@@ -10,6 +10,23 @@ use std::time::Duration;
 const WINDOW_WIDTH: f32 = 1280.0;
 const WINDOW_HEIGHT: f32 = 720.0;
 
+struct Tile {
+    texture: Texture,
+    position: Vec2<f32>,
+}
+
+impl Tile {
+    fn new(
+        texture: Texture,
+        position: Vec2<f32>,
+    ) -> Tile {
+        Tile {
+            texture,
+            position,
+        }
+    }
+}
+
 struct Player {
     animation: Animation,
     position: Vec2<f32>,
@@ -20,10 +37,10 @@ struct Player {
 
 impl Player {
     fn new(
-        animation: Animation, 
-        position: Vec2<f32>, 
-        velocity_x: f32, 
-        velocity_y: f32, 
+        animation: Animation,
+        position: Vec2<f32>,
+        velocity_x: f32,
+        velocity_y: f32,
         jumping: bool,
     ) -> Player {
         Player {
@@ -38,6 +55,7 @@ impl Player {
 
 struct GameState {
     player: Player,
+    tiles: Vec<Tile>,
 }
 
 impl GameState {
@@ -51,7 +69,6 @@ impl GameState {
             Rectangle::row(0.0, 0.0, 48.0, 48.0).take(2).collect(),
             quarter_second,
         );
-
         let player_position = Vec2::new (
             WINDOW_WIDTH / 2.0 - 48.0 / 2.0,
             WINDOW_HEIGHT / 2.0 - 48.0 as f32 / 2.0
@@ -60,16 +77,32 @@ impl GameState {
         let player_velocity_y = 0.0;
         let player_jumping = false;
 
+        let mut tiles: Vec<Tile> = Vec::new();
+
+
+        let mut tile_position = Vec2::new (
+            100.0,
+            500.0,
+        );
+
+        for x in 0..10 {
+            let tile_texture = Texture::new(ctx, "./resources/stone_tile.png")?;
+
+            tiles.push(Tile::new(tile_texture, tile_position));
+            tile_position.x += 32.0;
+        }
+
 
 
         Ok(GameState {
             player: Player::new(
-                player_animation, 
-                player_position, 
-                player_velocity_x, 
+                player_animation,
+                player_position,
+                player_velocity_x,
                 player_velocity_y,
                 player_jumping,
             ),
+            tiles: tiles,
         })
     }
 }
@@ -125,7 +158,7 @@ impl State for GameState {
 
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.08, 0.08, 0.08));
-        
+
         let quarter_second = Duration::from_millis(250);
 
         if input::is_key_down(ctx, Key::D) {
@@ -143,6 +176,11 @@ impl State for GameState {
         }
 
         graphics::draw(ctx, &self.player.animation, self.player.position);
+
+        for x in &self.tiles {
+            graphics::draw(ctx, &x.texture, x.position);
+        }
+
 
         Ok(())
     }
