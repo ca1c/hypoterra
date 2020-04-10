@@ -8,7 +8,7 @@ use std::time::Duration;
 // use tetra::window;
 
 const WINDOW_WIDTH: f32 = 1280.0;
-const WINDOW_HEIGHT: f32 = 720.0;
+const WINDOW_HEIGHT: f32 = 960.0;
 
 struct Tile {
     texture: Texture,
