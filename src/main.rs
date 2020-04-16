@@ -25,6 +25,15 @@ impl Tile {
             position,
         }
     }
+
+    fn bounds(&self) -> Rectangle {
+        Rectangle::new(
+            self.position.x,
+            self.position.y,
+            self.texture.width() as f32,
+            self.texture.height() as f32,
+        )
+    }
 }
 
 struct Player {
@@ -50,6 +59,15 @@ impl Player {
             velocity_y,
             jumping,
         }
+    }
+
+    fn bounds(&self) -> Rectangle {
+        Rectangle::new(
+            self.position.x,
+            self.position.y,
+            self.animation.texture().width() as f32,
+            self.animation.texture().height() as f32,
+        )
     }
 }
 
@@ -81,8 +99,8 @@ impl GameState {
 
 
         let mut tile_position = Vec2::new (
-            100.0,
-            500.0,
+            450.0,
+            600.0,
         );
 
         for x in 0..10 {
@@ -145,12 +163,24 @@ impl State for GameState {
             self.player.velocity_y += 1.0; // gravity
             self.player.position.x += self.player.velocity_x;
             self.player.position.y += self.player.velocity_y;
+
+            println!("{}", self.player.position.y);
         }
 
         // if it hits the ground
-        if self.player.position.y > (WINDOW_HEIGHT / 2.0 - self.player.animation.texture().height() as f32 / 2.0) + 2.0 {
-            self.player.jumping = false;
-            self.player.velocity_y = 0.0;
+        // if self.player.position.y > (WINDOW_HEIGHT / 2.0 - self.player.animation.texture().height() as f32 / 2.0) + 2.0 {
+        //     self.player.jumping = false;
+        //     self.player.velocity_y = 0.0;
+        // }
+
+        let player_bounds = self.player.bounds();
+
+        for tile in &self.tiles {
+            let tile_bounds = tile.bounds();
+            if player_bounds.intersects(&tile_bounds) {
+                self.player.jumping = false;
+                self.player.velocity_y = 0.0;
+            }
         }
 
         Ok(())
