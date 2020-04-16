@@ -127,8 +127,47 @@ impl GameState {
 
 impl State for GameState {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
+
+        if input::is_key_pressed(ctx, Key::Space) && self.player.jumping == false {
+            self.player.velocity_y -= 18.0;
+            self.player.jumping = true;
+        }
+
+        println!("{}", self.player.jumping);
+
         let quarter_second = Duration::from_millis(250);
         // Player Movement
+
+        let player_bounds = self.player.bounds();
+        let mut grounded = true;
+
+        if input::is_key_pressed(ctx, Key::Space) == false {
+
+
+            for tile in &self.tiles {
+                let tile_bounds = tile.bounds();
+
+                if  self.player.position.x < tile.position.x + (tile.texture.width() as f32) &&
+                    self.player.position.x + (self.player.animation.texture().width() as f32) > tile.position.x &&
+                    self.player.position.y < (tile.position.y + tile.texture.height() as f32) &&
+                    self.player.position.y + (self.player.animation.texture().height() as f32) > tile.position.y {
+
+                    self.player.jumping = false;
+                    self.player.velocity_y = 0.0;
+
+                    // Fixes problem where sprite stops moving after it has intersected the tile by about 6 pixels
+                    self.player.position.y = tile.position.y - (self.player.animation.texture().height() as f32 - 1.0);
+
+                    grounded = true;
+
+                    break;
+                } else {
+                    self.player.jumping = true;
+                }
+            }
+
+        }
+
 
         // Move Left
         if input::is_key_down(ctx, Key::A) {
@@ -154,17 +193,10 @@ impl State for GameState {
             self.player.position.x += self.player.velocity_x;
         }
 
-        if input::is_key_pressed(ctx, Key::Space) && self.player.jumping == false {
-            self.player.velocity_y -= 18.0;
-            self.player.jumping = true;
-        }
-
         if self.player.jumping == true {
             self.player.velocity_y += 1.0; // gravity
             self.player.position.x += self.player.velocity_x;
             self.player.position.y += self.player.velocity_y;
-
-            println!("{}", self.player.position.y);
         }
 
         // if it hits the ground
@@ -172,19 +204,6 @@ impl State for GameState {
         //     self.player.jumping = false;
         //     self.player.velocity_y = 0.0;
         // }
-
-        let player_bounds = self.player.bounds();
-
-        for tile in &self.tiles {
-            let tile_bounds = tile.bounds();
-            if player_bounds.intersects(&tile_bounds) {
-                self.player.jumping = false;
-                self.player.velocity_y = 0.0;
-
-                // Fixes problem where sprite stops moving after it has intersected the tile by about 6 pixels
-                self.player.position.y = tile.position.y - self.player.animation.texture().height() as f32;
-            }
-        }
 
         Ok(())
     }
