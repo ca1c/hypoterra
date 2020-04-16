@@ -99,11 +99,11 @@ impl GameState {
 
 
         let mut tile_position = Vec2::new (
-            450.0,
+            128.0,
             600.0,
         );
 
-        for x in 0..10 {
+        for x in 0..30 {
             let tile_texture = Texture::new(ctx, "./resources/stone_tile.png")?;
 
             tiles.push(Tile::new(tile_texture, tile_position));
@@ -148,9 +148,9 @@ impl State for GameState {
                 let tile_bounds = tile.bounds();
 
                 if  self.player.position.x < tile.position.x + (tile.texture.width() as f32) &&
-                    self.player.position.x + (self.player.animation.texture().width() as f32) > tile.position.x &&
+                    self.player.position.x + (48.0) > tile.position.x &&
                     self.player.position.y < (tile.position.y + tile.texture.height() as f32) &&
-                    self.player.position.y + (self.player.animation.texture().height() as f32) > tile.position.y {
+                    self.player.position.y + (48.0) > tile.position.y {
 
                     self.player.jumping = false;
                     self.player.velocity_y = 0.0;
