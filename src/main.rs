@@ -180,6 +180,9 @@ impl State for GameState {
             if player_bounds.intersects(&tile_bounds) {
                 self.player.jumping = false;
                 self.player.velocity_y = 0.0;
+
+                // Fixes problem where sprite stops moving after it has intersected the tile by about 6 pixels
+                self.player.position.y = tile.position.y - self.player.animation.texture().height() as f32;
             }
         }
 
