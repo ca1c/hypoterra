@@ -25,15 +25,6 @@ impl Tile {
             position,
         }
     }
-
-    fn bounds(&self) -> Rectangle {
-        Rectangle::new(
-            self.position.x,
-            self.position.y,
-            self.texture.width() as f32,
-            self.texture.height() as f32,
-        )
-    }
 }
 
 struct Player {
@@ -59,15 +50,6 @@ impl Player {
             velocity_y,
             jumping,
         }
-    }
-
-    fn bounds(&self) -> Rectangle {
-        Rectangle::new(
-            self.position.x,
-            self.position.y,
-            self.animation.texture().width() as f32,
-            self.animation.texture().height() as f32,
-        )
     }
 }
 
@@ -96,12 +78,6 @@ impl GameState {
         let player_jumping = false;
 
         let mut tiles: Vec<Tile> = Vec::new();
-
-
-        let mut tile_position = Vec2::new (
-            128.0,
-            600.0,
-        );
 
 
         let mut tile_map = [
@@ -185,30 +161,27 @@ impl State for GameState {
         }
 
 
-        let quarter_second = Duration::from_millis(250);
         // Player Movement
-
-        let player_bounds = self.player.bounds();
-        let mut grounded = true;
 
         if input::is_key_pressed(ctx, Key::Space) == false {
 
 
             for tile in &self.tiles {
-                let tile_bounds = tile.bounds();
 
-                if  self.player.position.x < tile.position.x + (tile.texture.width() as f32) &&
+                // self.player.position.x < tile.position.x + (tile.texture.width() as f32) &&
+                // self.player.position.x + (48.0) > tile.position.x &&
+                // self.player.position.y + (48.0) > tile.position.y &&
+                // self.player.position.y < (tile.position.y + tile.texture.height() as f32)
+
+                if  self.player.position.y + (48.0) > tile.position.y &&
                     self.player.position.x + (48.0) > tile.position.x &&
-                    self.player.position.y < (tile.position.y + tile.texture.height() as f32) &&
-                    self.player.position.y + (48.0) > tile.position.y {
+                    self.player.position.x < tile.position.x + (tile.texture.width() as f32) &&
+                    self.player.position.y < tile.position.y {
 
                     self.player.jumping = false;
                     self.player.velocity_y = 0.0;
+                    self.player.position.y = tile.position.y - (self.player.animation.texture().height() as f32 - 0.1);
 
-                    // Fixes problem where sprite stops moving after it has intersected the tile by about 6 pixels
-                    self.player.position.y = tile.position.y - (self.player.animation.texture().height() as f32 - 1.0);
-
-                    grounded = true;
 
                     break;
                 } else {
@@ -261,7 +234,7 @@ impl State for GameState {
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.08, 0.08, 0.08));
 
-        let quarter_second = Duration::from_millis(250);
+        let _quarter_second = Duration::from_millis(250);
 
         if input::is_key_down(ctx, Key::D) {
             let player_texture_walking_right: Texture = Texture::new(ctx, "./resources/sorcerer_walking_right.png")?;
