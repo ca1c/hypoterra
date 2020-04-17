@@ -31,8 +31,6 @@ struct Player {
     animation: Animation,
     position: Vec2<f32>,
     velocity_x: f32,
-    velocity_y: f32,
-    jumping: bool,
 }
 
 impl Player {
@@ -40,15 +38,11 @@ impl Player {
         animation: Animation,
         position: Vec2<f32>,
         velocity_x: f32,
-        velocity_y: f32,
-        jumping: bool,
     ) -> Player {
         Player {
             animation,
             position,
             velocity_x,
-            velocity_y,
-            jumping,
         }
     }
 }
@@ -74,8 +68,6 @@ impl GameState {
             WINDOW_HEIGHT / 2.0 - 48.0 as f32 / 2.0
         );
         let player_velocity_x = 0.0;
-        let player_velocity_y = 0.0;
-        let player_jumping = false;
 
         let mut tiles: Vec<Tile> = Vec::new();
 
@@ -144,8 +136,6 @@ impl GameState {
                 player_animation,
                 player_position,
                 player_velocity_x,
-                player_velocity_y,
-                player_jumping,
             ),
             tiles: tiles,
         })
