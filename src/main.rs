@@ -31,6 +31,8 @@ struct Player {
     animation: Animation,
     position: Vec2<f32>,
     velocity_x: f32,
+    colliding: bool,
+    facing: i8,
 }
 
 impl Player {
@@ -38,11 +40,15 @@ impl Player {
         animation: Animation,
         position: Vec2<f32>,
         velocity_x: f32,
+        colliding: bool,
+        facing: i8,
     ) -> Player {
         Player {
             animation,
             position,
             velocity_x,
+            colliding,
+            facing,
         }
     }
 }
@@ -68,6 +74,14 @@ impl GameState {
             WINDOW_HEIGHT / 2.0 - 48.0 as f32 / 2.0
         );
         let player_velocity_x = 0.0;
+        let player_colliding = false;
+
+        // 0: sorcerer_idle, facing none
+        // 1: sorcerer_walking_right, facing right
+        // 2: sorcerer_walking_left, facing left
+        // 3: sorcerer_walking_up, facing up
+        // 4: sorcerer_walking_down, facing down
+        let player_facing = 0;
 
         let mut tiles: Vec<Tile> = Vec::new();
 
@@ -124,18 +138,13 @@ impl GameState {
             }
         }
 
-
-
-
-
-
-
-
         Ok(GameState {
             player: Player::new(
                 player_animation,
                 player_position,
                 player_velocity_x,
+                player_colliding,
+                player_facing,
             ),
             tiles: tiles,
         })
@@ -145,28 +154,66 @@ impl GameState {
 impl State for GameState {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
 
+        println!("{}", self.player.facing);
+
+        for tile in &self.tiles {
+            if self.player.position.x < tile.position.x + (tile.texture.width() as f32) &&
+                self.player.position.x + (48.0) > tile.position.x &&
+                self.player.position.y < (tile.position.y + tile.texture.height() as f32) &&
+                self.player.position.y + (48.0) > tile.position.y {
+
+                    if self.player.facing == 2 {
+                        self.player.colliding = true;
+                        self.player.position.x = self.player.position.x + 7.0;
+                    } else if self.player.facing == 1 {
+                        self.player.colliding = true;
+                        self.player.position.x = self.player.position.x - 7.0;
+                    } else if self.player.facing == 3 {
+                        self.player.colliding = true;
+                        self.player.position.y = self.player.position.y + 7.0;
+                    } else if self.player.facing == 4 {
+                        self.player.colliding = true;
+                        self.player.position.y = self.player.position.y - 7.0;
+                    }
+
+
+                    break;
+                } else {
+                    self.player.colliding = false;
+                }
+        }
 
         // Move Left
-        if input::is_key_down(ctx, Key::A) {
+        if input::is_key_down(ctx, Key::A) && self.player.colliding == false {
             if self.player.position.x > 0.0 {
                 self.player.velocity_x = -6.0;
                 self.player.position.x += self.player.velocity_x;
+
+                self.player.facing = 2;
             }
-        } else if input::is_key_down(ctx, Key::D) {
+        } else if input::is_key_down(ctx, Key::D) && self.player.colliding == false {
             if self.player.position.x < WINDOW_WIDTH - self.player.animation.texture().width() as f32 {
                 self.player.velocity_x = 6.0;
                 self.player.position.x += self.player.velocity_x;
+
+                self.player.facing  = 1;
             }
-        } else if input::is_key_down(ctx, Key::W) {
+        } else if input::is_key_down(ctx, Key::W) && self.player.colliding == false {
             if self.player.position.y > WINDOW_HEIGHT - WINDOW_HEIGHT {
                 self.player.velocity_x = 6.0;
                 self.player.position.y -= self.player.velocity_x;
+
+                self.player.facing = 3;
             }
-        } else if input::is_key_down(ctx, Key::S) {
+        } else if input::is_key_down(ctx, Key::S) && self.player.colliding == false {
             if self.player.position.y + (self.player.animation.texture().height() as f32) < WINDOW_HEIGHT {
                 self.player.velocity_x = 6.0;
                 self.player.position.y += self.player.velocity_x;
+
+                self.player.facing = 4;
             }
+        } else {
+            self.player.facing = 0;
         }
 
         Ok(())
