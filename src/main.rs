@@ -155,78 +155,29 @@ impl GameState {
 impl State for GameState {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
 
-        if input::is_key_pressed(ctx, Key::Space) && self.player.jumping == false {
-            self.player.velocity_y -= 18.0;
-            self.player.jumping = true;
-        }
-
-
-        // Player Movement
-
-        if input::is_key_pressed(ctx, Key::Space) == false {
-
-
-            for tile in &self.tiles {
-
-                // self.player.position.x < tile.position.x + (tile.texture.width() as f32) &&
-                // self.player.position.x + (48.0) > tile.position.x &&
-                // self.player.position.y + (48.0) > tile.position.y &&
-                // self.player.position.y < (tile.position.y + tile.texture.height() as f32)
-
-                if  self.player.position.y + (48.0) > tile.position.y &&
-                    self.player.position.x + (48.0) > tile.position.x &&
-                    self.player.position.x < tile.position.x + (tile.texture.width() as f32) &&
-                    self.player.position.y < tile.position.y {
-
-                    self.player.jumping = false;
-                    self.player.velocity_y = 0.0;
-                    self.player.position.y = tile.position.y - (self.player.animation.texture().height() as f32 - 0.1);
-
-
-                    break;
-                } else {
-                    self.player.jumping = true;
-                }
-            }
-
-        }
-
 
         // Move Left
         if input::is_key_down(ctx, Key::A) {
             if self.player.position.x > 0.0 {
-                if self.player.jumping == true {
-                    self.player.velocity_x = -6.0;
-                } else {
-                    self.player.velocity_x = -6.0;
-                    self.player.position.x += self.player.velocity_x;
-                }
+                self.player.velocity_x = -6.0;
+                self.player.position.x += self.player.velocity_x;
             }
         } else if input::is_key_down(ctx, Key::D) {
             if self.player.position.x < WINDOW_WIDTH - self.player.animation.texture().width() as f32 {
-                if self.player.jumping == true {
-                    self.player.velocity_x = 6.0;
-                } else {
-                    self.player.velocity_x = 6.0;
-                    self.player.position.x += self.player.velocity_x;
-                }
+                self.player.velocity_x = 6.0;
+                self.player.position.x += self.player.velocity_x;
             }
-        } else if self.player.jumping == false {
-            self.player.velocity_x *= 0.9;
-            self.player.position.x += self.player.velocity_x;
+        } else if input::is_key_down(ctx, Key::W) {
+            if self.player.position.y > WINDOW_HEIGHT - WINDOW_HEIGHT {
+                self.player.velocity_x = 6.0;
+                self.player.position.y -= self.player.velocity_x;
+            }
+        } else if input::is_key_down(ctx, Key::S) {
+            if self.player.position.y + (self.player.animation.texture().height() as f32) < WINDOW_HEIGHT {
+                self.player.velocity_x = 6.0;
+                self.player.position.y += self.player.velocity_x;
+            }
         }
-
-        if self.player.jumping == true {
-            self.player.velocity_y += 1.0; // gravity
-            self.player.position.x += self.player.velocity_x;
-            self.player.position.y += self.player.velocity_y;
-        }
-
-        // if it hits the ground
-        // if self.player.position.y > (WINDOW_HEIGHT / 2.0 - self.player.animation.texture().height() as f32 / 2.0) + 2.0 {
-        //     self.player.jumping = false;
-        //     self.player.velocity_y = 0.0;
-        // }
 
         Ok(())
     }
