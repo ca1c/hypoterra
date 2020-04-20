@@ -323,11 +323,10 @@ impl State for GameState {
         // This will be inside a loop later
         // graphics::draw(ctx, &self.attack_ball.animation, self.attack_ball.position);
 
-        for x in &self.player_attack_instances {
+        for x in &mut self.player_attack_instances {
             graphics::draw(ctx, &x.animation, x.position);
+            x.animation.advance(ctx);
         }
-
-        self.attack_ball.animation.advance(ctx);
 
         for x in &self.tiles {
             graphics::draw(ctx, &x.texture, x.position);
