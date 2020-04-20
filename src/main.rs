@@ -53,8 +53,31 @@ impl Player {
     }
 }
 
+struct PlayerAttackSphere {
+    animation: Animation,
+    position: Vec2<f32>,
+    velocity: f32,
+}
+
+impl PlayerAttackSphere {
+    fn new(
+        animation: Animation,
+        position: Vec2<f32>,
+        velocity: f32,
+    ) -> PlayerAttackSphere {
+        PlayerAttackSphere{
+            animation,
+            position,
+            velocity,
+        }
+    }
+}
+
+// Attack balls will probably be an array so that you can shoot multiple at once
+
 struct GameState {
     player: Player,
+    attack_ball: PlayerAttackSphere,
     tiles: Vec<Tile>,
 }
 
@@ -62,6 +85,7 @@ impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState>{
 
         let quarter_second = Duration::from_millis(250);
+        let tenth_second = Duration::from_millis(100);
 
         let player_texture = Texture::new(ctx, "./resources/sorcerer_idle.png")?;
         let player_animation = Animation::new(
@@ -75,7 +99,6 @@ impl GameState {
         );
         let player_velocity_x = 0.0;
         let player_colliding = false;
-
         // 0: sorcerer_idle, facing none
         // 1: sorcerer_walking_right, facing right
         // 2: sorcerer_walking_left, facing left
@@ -83,9 +106,20 @@ impl GameState {
         // 4: sorcerer_walking_down, facing down
         let player_facing = 0;
 
+        let attack_sphere_texture = Texture::new(ctx, "./resources/attack_ball.png")?;
+        let attack_sphere_animation = Animation::new(
+            attack_sphere_texture,
+            Rectangle::row(0.0, 0.0, 16.0, 16.0).take(2).collect(),
+            tenth_second,
+        );
+        let attack_sphere_position = Vec2::new (
+            WINDOW_WIDTH / 2.0 - 48.0 / 2.0,
+            WINDOW_HEIGHT / 2.0 - 48.0 as f32 / 2.0
+        );
+        let attack_sphere_velocity = 0.0;
+
+
         let mut tiles: Vec<Tile> = Vec::new();
-
-
         let mut tile_map = [
             [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,],
             [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,],
@@ -145,6 +179,11 @@ impl GameState {
                 player_velocity_x,
                 player_colliding,
                 player_facing,
+            ),
+            attack_ball: PlayerAttackSphere::new(
+                attack_sphere_animation,
+                attack_sphere_position,
+                attack_sphere_velocity,
             ),
             tiles: tiles,
         })
@@ -247,6 +286,9 @@ impl State for GameState {
         }
 
         graphics::draw(ctx, &self.player.animation, self.player.position);
+        graphics::draw(ctx, &self.attack_ball.animation, self.attack_ball.position);
+
+        self.attack_ball.animation.advance(ctx);
 
         for x in &self.tiles {
             graphics::draw(ctx, &x.texture, x.position);
