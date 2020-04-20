@@ -109,7 +109,7 @@ impl GameState {
         let attack_sphere_texture = Texture::new(ctx, "./resources/attack_ball.png")?;
         let attack_sphere_animation = Animation::new(
             attack_sphere_texture,
-            Rectangle::row(0.0, 0.0, 16.0, 16.0).take(2).collect(),
+            Rectangle::row(0.0, 0.0, 32.0, 32.0).take(2).collect(),
             tenth_second,
         );
         let attack_sphere_position = Vec2::new (
@@ -192,8 +192,6 @@ impl GameState {
 
 impl State for GameState {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
-
-        println!("{}", self.player.facing);
 
         for tile in &self.tiles {
             if self.player.position.x < tile.position.x + (tile.texture.width() as f32) &&
