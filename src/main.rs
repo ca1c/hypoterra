@@ -33,6 +33,7 @@ struct Player {
     velocity_x: f32,
     colliding: bool,
     facing: i8,
+    prev_facing: i8,
 }
 
 impl Player {
@@ -42,6 +43,7 @@ impl Player {
         velocity_x: f32,
         colliding: bool,
         facing: i8,
+        prev_facing: i8,
     ) -> Player {
         Player {
             animation,
@@ -49,6 +51,7 @@ impl Player {
             velocity_x,
             colliding,
             facing,
+            prev_facing,
         }
     }
 }
@@ -79,6 +82,7 @@ struct GameState {
     player: Player,
     attack_ball: PlayerAttackSphere,
     tiles: Vec<Tile>,
+    player_attack_instances: Vec<PlayerAttackSphere>,
 }
 
 impl GameState {
@@ -105,6 +109,7 @@ impl GameState {
         // 3: sorcerer_walking_up, facing up
         // 4: sorcerer_walking_down, facing down
         let player_facing = 0;
+        let player_prev_facing = 0;
 
         let attack_sphere_texture = Texture::new(ctx, "./resources/attack_ball.png")?;
         let attack_sphere_animation = Animation::new(
@@ -117,6 +122,8 @@ impl GameState {
             WINDOW_HEIGHT / 2.0 - 48.0 as f32 / 2.0
         );
         let attack_sphere_velocity = 0.0;
+
+        let mut player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
 
 
         let mut tiles: Vec<Tile> = Vec::new();
@@ -179,6 +186,7 @@ impl GameState {
                 player_velocity_x,
                 player_colliding,
                 player_facing,
+                player_prev_facing,
             ),
             attack_ball: PlayerAttackSphere::new(
                 attack_sphere_animation,
@@ -186,6 +194,7 @@ impl GameState {
                 attack_sphere_velocity,
             ),
             tiles: tiles,
+            player_attack_instances: player_attack_instances,
         })
     }
 }
@@ -220,6 +229,9 @@ impl State for GameState {
                 }
         }
 
+        // Attack Instance Loop
+
+
         // Move Left
         if input::is_key_down(ctx, Key::A) && self.player.colliding == false {
             if self.player.position.x > 0.0 {
@@ -250,7 +262,30 @@ impl State for GameState {
                 self.player.facing = 4;
             }
         } else {
+            self.player.prev_facing = self.player.facing;
             self.player.facing = 0;
+        }
+
+        // Attack input handling
+        if input::is_key_pressed(ctx, Key::Space) && self.player_attack_instances.len() < 6 {
+            let tenth_second = Duration::from_millis(100);
+            let attack_sphere_texture = Texture::new(ctx, "./resources/attack_ball.png")?;
+            let attack_sphere_animation = Animation::new(
+                attack_sphere_texture,
+                Rectangle::row(0.0, 0.0, 32.0, 32.0).take(2).collect(),
+                tenth_second,
+            );
+            let attack_sphere_position = Vec2::new (
+                self.player.position.x,
+                self.player.position.y,
+            );
+            let attack_sphere_velocity = 6.0;
+
+            self.player_attack_instances.push(PlayerAttackSphere::new(
+                attack_sphere_animation,
+                attack_sphere_position,
+                attack_sphere_velocity,
+            ));
         }
 
         Ok(())
@@ -284,7 +319,13 @@ impl State for GameState {
         }
 
         graphics::draw(ctx, &self.player.animation, self.player.position);
-        graphics::draw(ctx, &self.attack_ball.animation, self.attack_ball.position);
+
+        // This will be inside a loop later
+        // graphics::draw(ctx, &self.attack_ball.animation, self.attack_ball.position);
+
+        for x in &self.player_attack_instances {
+            graphics::draw(ctx, &x.animation, x.position);
+        }
 
         self.attack_ball.animation.advance(ctx);
 
