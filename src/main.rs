@@ -232,6 +232,14 @@ impl State for GameState {
             let player_texture_walking_left: Texture = Texture::new(ctx, "./resources/sorcerer_walking_left.png")?;
             self.player.animation.set_texture(player_texture_walking_left);
             self.player.animation.advance(ctx);
+        } else if input::is_key_down(ctx, Key::W) {
+            let player_texture_walking_left: Texture = Texture::new(ctx, "./resources/sorcerer_walking_up.png")?;
+            self.player.animation.set_texture(player_texture_walking_left);
+            self.player.animation.advance(ctx);
+        } else if input::is_key_down(ctx, Key::S) {
+            let player_texture_walking_left: Texture = Texture::new(ctx, "./resources/sorcerer_walking_down.png")?;
+            self.player.animation.set_texture(player_texture_walking_left);
+            self.player.animation.advance(ctx);
         } else {
             let player_texture_idle: Texture = Texture::new(ctx, "./resources/sorcerer_idle.png")?;
             self.player.animation.set_texture(player_texture_idle);
