@@ -82,17 +82,39 @@ impl PlayerAttackSphere {
     }
 }
 
+struct Enemy {
+    animation: Animation,
+    position: Vec2<f32>,
+    velocity: f32,
+}
+
+impl Enemy {
+    fn new(
+        animation: Animation,
+        position: Vec2<f32>,
+        velocity: f32,
+    ) -> Enemy {
+        Enemy {
+            animation,
+            position,
+            velocity,
+        }
+    }
+}
+
 // Attack balls will probably be an array so that you can shoot multiple at once
 struct GameState {
     player: Player,
     tiles: Vec<Tile>,
     player_attack_instances: Vec<PlayerAttackSphere>,
+    enemy: Enemy,
 }
 
 impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState>{
 
         let quarter_second = Duration::from_millis(250);
+        let twentieth_second = Duration::from_millis(50);
 
         let player_texture = Texture::new(ctx, "./resources/sorcerer_idle_down.png")?;
         let player_animation = Animation::new(
@@ -113,6 +135,20 @@ impl GameState {
         // 4: sorcerer_walking_down, facing down
         let player_facing = 0;
         let player_prev_facing = 4;
+
+
+        let enemy_texture = Texture::new(ctx, "./resources/beer_idle.png")?;
+        let enemy_animation = Animation::new(
+            enemy_texture,
+            Rectangle::row(0.0, 0.0, 48.0, 48.0).take(24).collect(),
+            twentieth_second,
+        );
+        let enemy_position = Vec2::new(
+            700.0,
+            500.0,
+        );
+        let enemy_velocity = 6.0;
+
 
         let player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
 
@@ -190,6 +226,11 @@ impl GameState {
             ),
             tiles: tiles,
             player_attack_instances: player_attack_instances,
+            enemy: Enemy::new(
+                enemy_animation,
+                enemy_position,
+                enemy_velocity,
+            )
         })
     }
 }
@@ -471,6 +512,8 @@ impl State for GameState {
 
         graphics::draw(ctx, &self.player.animation, self.player.position);
 
+        graphics::draw(ctx, &self.enemy.animation, self.enemy.position);
+        self.enemy.animation.advance(ctx);
 
         Ok(())
     }
