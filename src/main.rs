@@ -91,7 +91,7 @@ impl GameState {
 
         let quarter_second = Duration::from_millis(250);
 
-        let player_texture = Texture::new(ctx, "./resources/sorcerer_idle.png")?;
+        let player_texture = Texture::new(ctx, "./resources/sorcerer_idle_down.png")?;
         let player_animation = Animation::new(
             player_texture,
             Rectangle::row(0.0, 0.0, 48.0, 48.0).take(2).collect(),
@@ -109,7 +109,7 @@ impl GameState {
         // 3: sorcerer_walking_up, facing up
         // 4: sorcerer_walking_down, facing down
         let player_facing = 0;
-        let player_prev_facing = 1;
+        let player_prev_facing = 4;
 
         let player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
 
@@ -234,7 +234,7 @@ impl State for GameState {
         }
 
         // Attack Instance Loop
-        for attack in &mut self.player_attack_instances {
+        for mut attack in &mut self.player_attack_instances {
             if attack.facing == 1 {
                 attack.position.x += attack.velocity;
             } else if attack.facing == 2 {
@@ -418,9 +418,30 @@ impl State for GameState {
             self.player.animation.set_texture(player_texture_walking_left);
             self.player.animation.advance(ctx);
         } else {
-            let player_texture_idle: Texture = Texture::new(ctx, "./resources/sorcerer_idle.png")?;
-            self.player.animation.set_texture(player_texture_idle);
-            self.player.animation.advance(ctx);
+
+            // 0: sorcerer_idle, facing none
+            // 1: sorcerer_walking_right, facing right
+            // 2: sorcerer_walking_left, facing left
+            // 3: sorcerer_walking_up, facing up
+            // 4: sorcerer_walking_down, facing down
+
+            if self.player.prev_facing == 1 {
+                let player_texture_idle: Texture = Texture::new(ctx, "./resources/sorcerer_idle_right.png")?;
+                self.player.animation.set_texture(player_texture_idle);
+                self.player.animation.advance(ctx);
+            } else if self.player.prev_facing == 2 {
+                let player_texture_idle: Texture = Texture::new(ctx, "./resources/sorcerer_idle_left.png")?;
+                self.player.animation.set_texture(player_texture_idle);
+                self.player.animation.advance(ctx);
+            } else if self.player.prev_facing == 3 {
+                let player_texture_idle: Texture = Texture::new(ctx, "./resources/sorcerer_idle_up.png")?;
+                self.player.animation.set_texture(player_texture_idle);
+                self.player.animation.advance(ctx);
+            } else if self.player.prev_facing == 4 {
+                let player_texture_idle: Texture = Texture::new(ctx, "./resources/sorcerer_idle_down.png")?;
+                self.player.animation.set_texture(player_texture_idle);
+                self.player.animation.advance(ctx);
+            }
         }
 
         graphics::draw(ctx, &self.player.animation, self.player.position);
