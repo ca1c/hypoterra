@@ -60,6 +60,7 @@ struct PlayerAttackSphere {
     animation: Animation,
     position: Vec2<f32>,
     velocity: f32,
+    facing: i8,
 }
 
 impl PlayerAttackSphere {
@@ -67,11 +68,13 @@ impl PlayerAttackSphere {
         animation: Animation,
         position: Vec2<f32>,
         velocity: f32,
+        facing: i8,
     ) -> PlayerAttackSphere {
         PlayerAttackSphere{
             animation,
             position,
             velocity,
+            facing,
         }
     }
 }
@@ -109,7 +112,7 @@ impl GameState {
         // 3: sorcerer_walking_up, facing up
         // 4: sorcerer_walking_down, facing down
         let player_facing = 0;
-        let player_prev_facing = 0;
+        let player_prev_facing = 1;
 
         let attack_sphere_texture = Texture::new(ctx, "./resources/attack_ball.png")?;
         let attack_sphere_animation = Animation::new(
@@ -122,6 +125,7 @@ impl GameState {
             WINDOW_HEIGHT / 2.0 - 48.0 as f32 / 2.0
         );
         let attack_sphere_velocity = 0.0;
+        let attack_sphere_facing = 0;
 
         let mut player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
 
@@ -192,6 +196,7 @@ impl GameState {
                 attack_sphere_animation,
                 attack_sphere_position,
                 attack_sphere_velocity,
+                attack_sphere_facing,
             ),
             tiles: tiles,
             player_attack_instances: player_attack_instances,
@@ -230,40 +235,55 @@ impl State for GameState {
         }
 
         // Attack Instance Loop
-
+        for attack in &mut self.player_attack_instances {
+            if attack.facing == 1 {
+                attack.position.x += attack.velocity;
+            } else if attack.facing == 2 {
+                attack.position.x += attack.velocity;
+            } else if attack.facing == 3 {
+                attack.position.y += attack.velocity;
+            } else if attack.facing == 4 {
+                attack.position.y += attack.velocity;
+            }
+        }
 
         // Move Left
         if input::is_key_down(ctx, Key::A) && self.player.colliding == false {
             if self.player.position.x > 0.0 {
                 self.player.velocity_x = -6.0;
                 self.player.position.x += self.player.velocity_x;
-
                 self.player.facing = 2;
+
+                self.player.prev_facing = self.player.facing;
             }
         } else if input::is_key_down(ctx, Key::D) && self.player.colliding == false {
             if self.player.position.x < WINDOW_WIDTH - self.player.animation.texture().width() as f32 {
                 self.player.velocity_x = 6.0;
                 self.player.position.x += self.player.velocity_x;
-
                 self.player.facing  = 1;
+
+                self.player.prev_facing = self.player.facing;
             }
         } else if input::is_key_down(ctx, Key::W) && self.player.colliding == false {
             if self.player.position.y > WINDOW_HEIGHT - WINDOW_HEIGHT {
                 self.player.velocity_x = 6.0;
                 self.player.position.y -= self.player.velocity_x;
-
                 self.player.facing = 3;
+
+                self.player.prev_facing = self.player.facing;
             }
         } else if input::is_key_down(ctx, Key::S) && self.player.colliding == false {
             if self.player.position.y + (self.player.animation.texture().height() as f32) < WINDOW_HEIGHT {
                 self.player.velocity_x = 6.0;
                 self.player.position.y += self.player.velocity_x;
-
                 self.player.facing = 4;
+
+                self.player.prev_facing = self.player.facing;
             }
         } else {
-            self.player.prev_facing = self.player.facing;
+            self.player.prev_facing = self.player.prev_facing;
             self.player.facing = 0;
+            println!("{}", self.player.prev_facing);
         }
 
         // Attack input handling
@@ -279,13 +299,100 @@ impl State for GameState {
                 self.player.position.x,
                 self.player.position.y,
             );
-            let attack_sphere_velocity = 6.0;
 
-            self.player_attack_instances.push(PlayerAttackSphere::new(
-                attack_sphere_animation,
-                attack_sphere_position,
-                attack_sphere_velocity,
-            ));
+            let mut attack_sphere_facing: i8 = 1;
+
+            if self.player.facing != 0 {
+                attack_sphere_facing = self.player.facing;
+            }
+
+
+
+            if self.player.facing == 1 {
+                // facing right
+                let attack_sphere_velocity = 10.0;
+                self.player_attack_instances.push(PlayerAttackSphere::new(
+                    attack_sphere_animation,
+                    attack_sphere_position,
+                    attack_sphere_velocity,
+                    attack_sphere_facing,
+                ));
+
+            } else if self.player.facing == 2 {
+                // facing left
+                let attack_sphere_velocity = -10.0;
+                self.player_attack_instances.push(PlayerAttackSphere::new(
+                    attack_sphere_animation,
+                    attack_sphere_position,
+                    attack_sphere_velocity,
+                    attack_sphere_facing,
+                ));
+            } else if self.player.facing == 3 {
+                // facing up
+                let attack_sphere_velocity = -10.0;
+                self.player_attack_instances.push(PlayerAttackSphere::new(
+                    attack_sphere_animation,
+                    attack_sphere_position,
+                    attack_sphere_velocity,
+                    attack_sphere_facing,
+                ));
+            } else if self.player.facing == 4 {
+                // facing down
+                let attack_sphere_velocity = 10.0;
+                self.player_attack_instances.push(PlayerAttackSphere::new(
+                    attack_sphere_animation,
+                    attack_sphere_position,
+                    attack_sphere_velocity,
+                    attack_sphere_facing,
+                ));
+            } else if self.player.facing == 0 {
+                // go back to the previous facing value because this is the idle pos
+                match self.player.prev_facing {
+                    1 => {
+                        let attack_sphere_velocity = 10.0;
+                        attack_sphere_facing = self.player.prev_facing;
+                        self.player_attack_instances.push(PlayerAttackSphere::new(
+                            attack_sphere_animation,
+                            attack_sphere_position,
+                            attack_sphere_velocity,
+                            attack_sphere_facing,
+                        ));
+                    },
+                    2 => {
+                        let attack_sphere_velocity = -10.0;
+                        attack_sphere_facing = self.player.prev_facing;
+                        self.player_attack_instances.push(PlayerAttackSphere::new(
+                            attack_sphere_animation,
+                            attack_sphere_position,
+                            attack_sphere_velocity,
+                            attack_sphere_facing,
+                        ));
+                    },
+                    3 => {
+                        let attack_sphere_velocity = -10.0;
+                        attack_sphere_facing = self.player.prev_facing;
+                        self.player_attack_instances.push(PlayerAttackSphere::new(
+                            attack_sphere_animation,
+                            attack_sphere_position,
+                            attack_sphere_velocity,
+                            attack_sphere_facing,
+                        ));
+                    },
+                    4 => {
+                        let attack_sphere_velocity = 10.0;
+                        attack_sphere_facing = self.player.prev_facing;
+                        self.player_attack_instances.push(PlayerAttackSphere::new(
+                            attack_sphere_animation,
+                            attack_sphere_position,
+                            attack_sphere_velocity,
+                            attack_sphere_facing,
+                        ));
+                    },
+                    _ => {
+                        //nothing
+                    },
+                }
+            }
         }
 
         Ok(())
