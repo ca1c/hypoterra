@@ -83,7 +83,6 @@ impl PlayerAttackSphere {
 
 struct GameState {
     player: Player,
-    attack_ball: PlayerAttackSphere,
     tiles: Vec<Tile>,
     player_attack_instances: Vec<PlayerAttackSphere>,
 }
@@ -92,7 +91,6 @@ impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState>{
 
         let quarter_second = Duration::from_millis(250);
-        let tenth_second = Duration::from_millis(100);
 
         let player_texture = Texture::new(ctx, "./resources/sorcerer_idle.png")?;
         let player_animation = Animation::new(
@@ -114,20 +112,7 @@ impl GameState {
         let player_facing = 0;
         let player_prev_facing = 1;
 
-        let attack_sphere_texture = Texture::new(ctx, "./resources/attack_ball.png")?;
-        let attack_sphere_animation = Animation::new(
-            attack_sphere_texture,
-            Rectangle::row(0.0, 0.0, 32.0, 32.0).take(2).collect(),
-            tenth_second,
-        );
-        let attack_sphere_position = Vec2::new (
-            WINDOW_WIDTH / 2.0 - 48.0 / 2.0,
-            WINDOW_HEIGHT / 2.0 - 48.0 as f32 / 2.0
-        );
-        let attack_sphere_velocity = 0.0;
-        let attack_sphere_facing = 0;
-
-        let mut player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
+        let player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
 
 
         let mut tiles: Vec<Tile> = Vec::new();
@@ -191,12 +176,6 @@ impl GameState {
                 player_colliding,
                 player_facing,
                 player_prev_facing,
-            ),
-            attack_ball: PlayerAttackSphere::new(
-                attack_sphere_animation,
-                attack_sphere_position,
-                attack_sphere_velocity,
-                attack_sphere_facing,
             ),
             tiles: tiles,
             player_attack_instances: player_attack_instances,
@@ -283,7 +262,6 @@ impl State for GameState {
         } else {
             self.player.prev_facing = self.player.prev_facing;
             self.player.facing = 0;
-            println!("{}", self.player.prev_facing);
         }
 
         // Attack input handling
