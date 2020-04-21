@@ -80,7 +80,6 @@ impl PlayerAttackSphere {
 }
 
 // Attack balls will probably be an array so that you can shoot multiple at once
-
 struct GameState {
     player: Player,
     tiles: Vec<Tile>,
@@ -192,25 +191,46 @@ impl State for GameState {
                 self.player.position.y < (tile.position.y + tile.texture.height() as f32) &&
                 self.player.position.y + (48.0) > tile.position.y {
 
-                    if self.player.facing == 2 {
-                        self.player.colliding = true;
-                        self.player.position.x = self.player.position.x + 7.0;
-                    } else if self.player.facing == 1 {
-                        self.player.colliding = true;
-                        self.player.position.x = self.player.position.x - 7.0;
-                    } else if self.player.facing == 3 {
-                        self.player.colliding = true;
-                        self.player.position.y = self.player.position.y + 7.0;
-                    } else if self.player.facing == 4 {
-                        self.player.colliding = true;
-                        self.player.position.y = self.player.position.y - 7.0;
-                    }
-
-
-                    break;
-                } else {
-                    self.player.colliding = false;
+                if self.player.facing == 2 {
+                    self.player.colliding = true;
+                    self.player.position.x = self.player.position.x + 7.0;
+                } else if self.player.facing == 1 {
+                    self.player.colliding = true;
+                    self.player.position.x = self.player.position.x - 7.0;
+                } else if self.player.facing == 3 {
+                    self.player.colliding = true;
+                    self.player.position.y = self.player.position.y + 7.0;
+                } else if self.player.facing == 4 {
+                    self.player.colliding = true;
+                    self.player.position.y = self.player.position.y - 7.0;
                 }
+
+
+                break;
+            } else {
+                self.player.colliding = false;
+            }
+
+            let mut index = 0;
+            for attack in &mut self.player_attack_instances {
+                if attack.position.x < tile.position.x + (tile.texture.width() as f32) &&
+                    attack.position.x + (48.0) > tile.position.x &&
+                    attack.position.y < (tile.position.y + tile.texture.height() as f32) &&
+                    attack.position.y + (48.0) > tile.position.y ||
+                    attack.position.y < ((WINDOW_HEIGHT - WINDOW_HEIGHT) as f32) ||
+                    attack.position.y > (WINDOW_HEIGHT as f32) {
+
+                        // The commented code was a bug but it might be an interesting concept to add
+                        // later on in the game
+                        // // self.tiles.remove(index);
+
+                        self.player_attack_instances.remove(index);
+
+                        break;
+                } else {
+                    index += 1;
+                }
+            }
         }
 
         // Attack Instance Loop
