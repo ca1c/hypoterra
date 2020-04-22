@@ -68,6 +68,7 @@ struct PlayerAttackSphere {
     position: Vec2<f32>,
     velocity: f32,
     facing: i8,
+    visible: bool,
 }
 
 impl PlayerAttackSphere {
@@ -76,15 +77,18 @@ impl PlayerAttackSphere {
         position: Vec2<f32>,
         velocity: f32,
         facing: i8,
+        visible: bool,
     ) -> PlayerAttackSphere {
         PlayerAttackSphere{
             animation,
             position,
             velocity,
             facing,
+            visible,
         }
     }
 }
+
 
 struct Enemy {
     animation: Animation,
@@ -111,7 +115,7 @@ struct GameState {
     player: Player,
     tiles: Vec<Tile>,
     player_attack_instances: Vec<PlayerAttackSphere>,
-    enemy: Enemy,
+    enemy_instances: Vec<Enemy>,
 }
 
 impl GameState {
@@ -140,20 +144,6 @@ impl GameState {
         let player_facing = 0;
         let player_prev_facing = 4;
 
-
-        let enemy_texture = Texture::new(ctx, "./resources/beer_idle.png")?;
-        let enemy_animation = Animation::new(
-            enemy_texture,
-            Rectangle::row(0.0, 0.0, 48.0, 48.0).take(24).collect(),
-            twentieth_second,
-        );
-        let enemy_position = Vec2::new(
-            700.0,
-            500.0,
-        );
-        let enemy_velocity = 6.0;
-
-
         let player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
 
 
@@ -169,17 +159,17 @@ impl GameState {
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
-            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
-            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
-            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
+            [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,],
             [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,],
@@ -191,11 +181,13 @@ impl GameState {
             [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,],
         ];
 
+        let mut enemies: Vec<Enemy> = Vec::new();
 
         for (y, row) in tile_map.iter_mut().enumerate() {
             for (x, col) in row.iter_mut().enumerate() {
                 let mut stone = 1;
                 let mut woodplank = 2;
+                let mut enemy = 3;
 
                 if col == &mut stone {
                     let tile_texture = Texture::new(ctx, "./resources/stone_tile.png")?;
@@ -213,6 +205,24 @@ impl GameState {
                     );
 
                     tiles.push(Tile::new(tile_texture, tile_position, false));
+                } else if col == &mut enemy {
+                    let enemy_texture = Texture::new(ctx, "./resources/beer_idle.png")?;
+                    let enemy_animation = Animation::new(
+                        enemy_texture,
+                        Rectangle::row(0.0, 0.0, 48.0, 48.0).take(24).collect(),
+                        twentieth_second,
+                    );
+                    let enemy_position = Vec2::new(
+                        x as f32 * 32.0,
+                        y as f32 * 32.0,
+                    );
+                    let enemy_velocity = 6.0;
+
+                    enemies.push(Enemy::new(
+                        enemy_animation,
+                        enemy_position,
+                        enemy_velocity,
+                    ));
                 } else {
 
                 }
@@ -230,11 +240,7 @@ impl GameState {
             ),
             tiles: tiles,
             player_attack_instances: player_attack_instances,
-            enemy: Enemy::new(
-                enemy_animation,
-                enemy_position,
-                enemy_velocity,
-            )
+            enemy_instances: enemies,
         })
     }
 }
@@ -296,6 +302,36 @@ impl State for GameState {
             }
         }
 
+        // attack remover
+        for attack in self.player_attack_instances.iter() {
+            if attack.visible == false {
+                let index_2 = self.player_attack_instances.iter().position(|r| r.position == attack.position).unwrap();
+
+                &self.player_attack_instances.remove(index_2);
+
+                break;
+            } else {
+                //continue
+            }
+        }
+
+        // let attacks = &self.player_attack_instances;
+        // let mut enemies = &self.enemy_instances;
+        for mut attack in &mut self.player_attack_instances {
+            for enemy in &self.enemy_instances {
+                if collision(attack.position, enemy.position, 32.0, 32.0, 48.0, 48.0) == true {
+                    let index_1 = self.enemy_instances.iter().position(|r| r.position == enemy.position).unwrap();
+
+                    &self.enemy_instances.remove(index_1);
+                    attack.visible = false;
+
+                    break;
+                }
+            }
+
+            // can put more collision detection here
+        }
+
         // Attack Instance Loop
         for mut attack in &mut self.player_attack_instances {
             if attack.facing == 1 {
@@ -307,6 +343,7 @@ impl State for GameState {
             } else if attack.facing == 4 {
                 attack.position.y += attack.velocity;
             }
+
         }
 
         // Move Left
@@ -363,6 +400,8 @@ impl State for GameState {
 
             let mut attack_sphere_facing: i8 = 1;
 
+            let mut attack_sphere_visible: bool = true;
+
             if self.player.facing != 0 {
                 attack_sphere_facing = self.player.facing;
             }
@@ -377,6 +416,7 @@ impl State for GameState {
                     attack_sphere_position,
                     attack_sphere_velocity,
                     attack_sphere_facing,
+                    attack_sphere_visible,
                 ));
 
             } else if self.player.facing == 2 {
@@ -387,6 +427,7 @@ impl State for GameState {
                     attack_sphere_position,
                     attack_sphere_velocity,
                     attack_sphere_facing,
+                    attack_sphere_visible,
                 ));
             } else if self.player.facing == 3 {
                 // facing up
@@ -396,6 +437,7 @@ impl State for GameState {
                     attack_sphere_position,
                     attack_sphere_velocity,
                     attack_sphere_facing,
+                    attack_sphere_visible,
                 ));
             } else if self.player.facing == 4 {
                 // facing down
@@ -405,6 +447,7 @@ impl State for GameState {
                     attack_sphere_position,
                     attack_sphere_velocity,
                     attack_sphere_facing,
+                    attack_sphere_visible,
                 ));
             } else if self.player.facing == 0 {
                 // go back to the previous facing value because this is the idle pos
@@ -417,6 +460,7 @@ impl State for GameState {
                             attack_sphere_position,
                             attack_sphere_velocity,
                             attack_sphere_facing,
+                            attack_sphere_visible,
                         ));
                     },
                     2 => {
@@ -427,6 +471,7 @@ impl State for GameState {
                             attack_sphere_position,
                             attack_sphere_velocity,
                             attack_sphere_facing,
+                            attack_sphere_visible,
                         ));
                     },
                     3 => {
@@ -437,6 +482,7 @@ impl State for GameState {
                             attack_sphere_position,
                             attack_sphere_velocity,
                             attack_sphere_facing,
+                            attack_sphere_visible,
                         ));
                     },
                     4 => {
@@ -447,6 +493,7 @@ impl State for GameState {
                             attack_sphere_position,
                             attack_sphere_velocity,
                             attack_sphere_facing,
+                            attack_sphere_visible,
                         ));
                     },
                     _ => {
@@ -522,8 +569,10 @@ impl State for GameState {
 
         graphics::draw(ctx, &self.player.animation, self.player.position);
 
-        graphics::draw(ctx, &self.enemy.animation, self.enemy.position);
-        self.enemy.animation.advance(ctx);
+        for x in &mut self.enemy_instances {
+            graphics::draw(ctx, &x.animation, x.position);
+            x.animation.advance(ctx);
+        }
 
         Ok(())
     }
