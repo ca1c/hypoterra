@@ -1,3 +1,5 @@
+mod util;
+
 use tetra::graphics::{self, Color, Texture, Rectangle};
 use tetra::graphics::animation::Animation;
 use tetra::{Context, ContextBuilder, State};
@@ -6,6 +8,8 @@ use tetra::math::Vec2;
 use std::time::Duration;
 // use std::{thread, time};
 // use tetra::window;
+
+use util::collision;
 
 const WINDOW_WIDTH: f32 = 1280.0;
 const WINDOW_HEIGHT: f32 = 960.0;
@@ -238,11 +242,13 @@ impl GameState {
 impl State for GameState {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result {
 
+        // self.player.position.x < tile.position.x + (tile.texture.width() as f32) &&
+        // self.player.position.x + (48.0) > tile.position.x &&
+        // self.player.position.y < (tile.position.y + tile.texture.height() as f32) &&
+        // self.player.position.y + (48.0) > tile.position.y
+
         for tile in &self.tiles {
-            if self.player.position.x < tile.position.x + (tile.texture.width() as f32) &&
-                self.player.position.x + (48.0) > tile.position.x &&
-                self.player.position.y < (tile.position.y + tile.texture.height() as f32) &&
-                self.player.position.y + (48.0) > tile.position.y && tile.collidable == true {
+            if collision(self.player.position, tile.position, 48.0, 48.0, 32.0, 32.0) == true && tile.collidable == true {
 
                 if self.player.facing == 2 {
                     self.player.colliding = true;
@@ -266,10 +272,14 @@ impl State for GameState {
 
             let mut index = 0;
             for attack in &mut self.player_attack_instances {
-                if attack.position.x < tile.position.x + (tile.texture.width() as f32) &&
-                    attack.position.x + (48.0) > tile.position.x &&
-                    attack.position.y < (tile.position.y + tile.texture.height() as f32) &&
-                    attack.position.y + (48.0) > tile.position.y && tile.collidable == true ||
+                if collision(
+                    attack.position,
+                    tile.position,
+                    32.0,
+                    32.0,
+                    32.0,
+                    32.0,) == true &&
+                    tile.collidable == true ||
                     attack.position.y < ((WINDOW_HEIGHT - WINDOW_HEIGHT) as f32) ||
                     attack.position.y > (WINDOW_HEIGHT as f32) {
 
