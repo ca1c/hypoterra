@@ -259,7 +259,7 @@ impl State for GameState {
         // self.player.position.x + (48.0) > tile.position.x &&
         // self.player.position.y < (tile.position.y + tile.texture.height() as f32) &&
         // self.player.position.y + (48.0) > tile.position.y
-
+        
         self.camera.position.x = self.player.position.x;
         self.camera.position.y = self.player.position.y;
         self.camera.update();
@@ -527,6 +527,8 @@ impl State for GameState {
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::clear(ctx, Color::rgb(0.08, 0.08, 0.08));
 
+        graphics::set_transform_matrix(ctx, self.camera.as_matrix());
+
         let _quarter_second = Duration::from_millis(250);
 
         if input::is_key_down(ctx, Key::D) {
@@ -594,7 +596,6 @@ impl State for GameState {
             x.animation.advance(ctx);
         }
 
-        graphics::set_transform_matrix(ctx, self.camera.as_matrix());
 
         Ok(())
     }
