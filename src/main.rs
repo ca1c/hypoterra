@@ -41,6 +41,7 @@ struct Player {
     colliding: bool,
     facing: i8,
     prev_facing: i8,
+    alive: bool,
 }
 
 impl Player {
@@ -51,6 +52,7 @@ impl Player {
         colliding: bool,
         facing: i8,
         prev_facing: i8,
+        alive: bool,
     ) -> Player {
         Player {
             animation,
@@ -59,6 +61,7 @@ impl Player {
             colliding,
             facing,
             prev_facing,
+            alive,
         }
     }
 }
@@ -143,6 +146,7 @@ impl GameState {
         // 4: sorcerer_walking_down, facing down
         let player_facing = 0;
         let player_prev_facing = 4;
+        let player_alive = true;
 
         let player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
 
@@ -237,6 +241,7 @@ impl GameState {
                 player_colliding,
                 player_facing,
                 player_prev_facing,
+                player_alive,
             ),
             tiles: tiles,
             player_attack_instances: player_attack_instances,
@@ -319,6 +324,7 @@ impl State for GameState {
         // let mut enemies = &self.enemy_instances;
         for mut attack in &mut self.player_attack_instances {
             for enemy in &self.enemy_instances {
+                // enemy collision with attack instance
                 if collision(attack.position, enemy.position, 32.0, 32.0, 48.0, 48.0) == true {
                     let index_1 = self.enemy_instances.iter().position(|r| r.position == enemy.position).unwrap();
 
@@ -330,6 +336,12 @@ impl State for GameState {
             }
 
             // can put more collision detection here
+        }
+
+        for enemy in &self.enemy_instances {
+            if collision(self.player.position, enemy.position, 48.0, 48.0, 48.0, 48.0) == true {
+                self.player.alive = false;
+            }
         }
 
         // Attack Instance Loop
@@ -566,8 +578,10 @@ impl State for GameState {
             graphics::draw(ctx, &x.animation, x.position);
             x.animation.advance(ctx);
         }
-
-        graphics::draw(ctx, &self.player.animation, self.player.position);
+        
+        if self.player.alive == true {
+            graphics::draw(ctx, &self.player.animation, self.player.position);
+        }
 
         for x in &mut self.enemy_instances {
             graphics::draw(ctx, &x.animation, x.position);
