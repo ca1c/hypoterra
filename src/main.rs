@@ -154,8 +154,8 @@ impl GameState {
 
         let mut tiles: Vec<Tile> = Vec::new();
         let mut tile_map = [
-            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,],
-            [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,],
+            [1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1,],
+            [1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1,],
             [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,],
             [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,],
             [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1,],
@@ -193,6 +193,7 @@ impl GameState {
                 let mut stone = 1;
                 let mut woodplank = 2;
                 let mut enemy = 3;
+                let mut grass = 4;
 
                 if col == &mut stone {
                     let tile_texture = Texture::new(ctx, "./resources/stone_tile.png")?;
@@ -228,6 +229,14 @@ impl GameState {
                         enemy_position,
                         enemy_velocity,
                     ));
+                } else if col == &mut grass {
+                    let tile_texture = Texture::new(ctx, "./resources/grass_tile.png")?;
+                    let tile_position = Vec2::new (
+                        x as f32 * 32.0,
+                        y as f32 * 32.0,
+                    );
+
+                    tiles.push(Tile::new(tile_texture, tile_position, false));
                 } else {
 
                 }
@@ -260,8 +269,8 @@ impl State for GameState {
         // self.player.position.y < (tile.position.y + tile.texture.height() as f32) &&
         // self.player.position.y + (48.0) > tile.position.y
         
-        self.camera.position.x = self.player.position.x;
-        self.camera.position.y = self.player.position.y;
+        self.camera.position.x = self.player.position.x + 24.0;
+        self.camera.position.y = self.player.position.y + 24.0;
         self.camera.update();
 
         for tile in &self.tiles {
@@ -366,37 +375,29 @@ impl State for GameState {
 
         // Move Left
         if input::is_key_down(ctx, Key::A) && self.player.colliding == false {
-            if self.player.position.x > 0.0 {
-                self.player.velocity_x = -6.0;
-                self.player.position.x += self.player.velocity_x;
-                self.player.facing = 2;
+            self.player.velocity_x = -6.0;
+            self.player.position.x += self.player.velocity_x;
+            self.player.facing = 2;
 
-                self.player.prev_facing = self.player.facing;
-            }
+            self.player.prev_facing = self.player.facing;
         } else if input::is_key_down(ctx, Key::D) && self.player.colliding == false {
-            if self.player.position.x < WINDOW_WIDTH - self.player.animation.texture().width() as f32 {
-                self.player.velocity_x = 6.0;
-                self.player.position.x += self.player.velocity_x;
-                self.player.facing  = 1;
+            self.player.velocity_x = 6.0;
+            self.player.position.x += self.player.velocity_x;
+            self.player.facing  = 1;
 
-                self.player.prev_facing = self.player.facing;
-            }
+            self.player.prev_facing = self.player.facing;
         } else if input::is_key_down(ctx, Key::W) && self.player.colliding == false {
-            if self.player.position.y > WINDOW_HEIGHT - WINDOW_HEIGHT {
-                self.player.velocity_x = 6.0;
-                self.player.position.y -= self.player.velocity_x;
-                self.player.facing = 3;
+            self.player.velocity_x = 6.0;
+            self.player.position.y -= self.player.velocity_x;
+            self.player.facing = 3;
 
-                self.player.prev_facing = self.player.facing;
-            }
+            self.player.prev_facing = self.player.facing;
         } else if input::is_key_down(ctx, Key::S) && self.player.colliding == false {
-            if self.player.position.y + (self.player.animation.texture().height() as f32) < WINDOW_HEIGHT {
-                self.player.velocity_x = 6.0;
-                self.player.position.y += self.player.velocity_x;
-                self.player.facing = 4;
+            self.player.velocity_x = 6.0;
+            self.player.position.y += self.player.velocity_x;
+            self.player.facing = 4;
 
-                self.player.prev_facing = self.player.facing;
-            }
+            self.player.prev_facing = self.player.facing;
         } else {
             self.player.prev_facing = self.player.prev_facing;
             self.player.facing = 0;
