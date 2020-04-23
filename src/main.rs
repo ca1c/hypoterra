@@ -400,7 +400,7 @@ impl State for GameState {
 
             let mut attack_sphere_facing: i8 = 1;
 
-            let mut attack_sphere_visible: bool = true;
+            let attack_sphere_visible: bool = true;
 
             if self.player.facing != 0 {
                 attack_sphere_facing = self.player.facing;
