@@ -1,6 +1,6 @@
 mod util;
 
-use tetra::graphics::{self, Color, Texture, Rectangle};
+use tetra::graphics::{self, Color, Texture, Rectangle, Camera};
 use tetra::graphics::animation::Animation;
 use tetra::{Context, ContextBuilder, State};
 use tetra::input::{self, Key};
@@ -119,6 +119,7 @@ struct GameState {
     tiles: Vec<Tile>,
     player_attack_instances: Vec<PlayerAttackSphere>,
     enemy_instances: Vec<Enemy>,
+    camera: Camera,
 }
 
 impl GameState {
@@ -246,6 +247,7 @@ impl GameState {
             tiles: tiles,
             player_attack_instances: player_attack_instances,
             enemy_instances: enemies,
+            camera: Camera::with_window_size(ctx),
         })
     }
 }
@@ -257,6 +259,10 @@ impl State for GameState {
         // self.player.position.x + (48.0) > tile.position.x &&
         // self.player.position.y < (tile.position.y + tile.texture.height() as f32) &&
         // self.player.position.y + (48.0) > tile.position.y
+
+        self.camera.position.x = self.player.position.x;
+        self.camera.position.y = self.player.position.y;
+        self.camera.update();
 
         for tile in &self.tiles {
             if collision(self.player.position, tile.position, 48.0, 48.0, 32.0, 32.0) == true && tile.collidable == true {
@@ -578,7 +584,7 @@ impl State for GameState {
             graphics::draw(ctx, &x.animation, x.position);
             x.animation.advance(ctx);
         }
-        
+
         if self.player.alive == true {
             graphics::draw(ctx, &self.player.animation, self.player.position);
         }
@@ -587,6 +593,8 @@ impl State for GameState {
             graphics::draw(ctx, &x.animation, x.position);
             x.animation.advance(ctx);
         }
+
+        graphics::set_transform_matrix(ctx, self.camera.as_matrix());
 
         Ok(())
     }
