@@ -164,12 +164,12 @@ impl GameState {
             [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
             [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
             [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
-            [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4, 1, 1, 1, 1,],
             [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
             [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
             [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
             [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
-            [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 1, 1, 1, 1,],
+            [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
+            [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
             [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
             [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
             [1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1,],
@@ -186,13 +186,31 @@ impl GameState {
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,],
         ];
 
+        let enemy_positions: Vec<Vec2<f32>> = vec![Vec2::new(960.0, 320.0), Vec2::new(896.0, 512.0)];
+
         let mut enemies: Vec<Enemy> = Vec::new();
+
+        for pos in enemy_positions {
+            let enemy_texture = Texture::new(ctx, "./resources/beer_idle.png")?;
+            let enemy_animation = Animation::new(
+                enemy_texture,
+                Rectangle::row(0.0, 0.0, 48.0, 48.0).take(24).collect(),
+                twentieth_second,
+            );
+            let enemy_position = pos;
+            let enemy_velocity = 6.0;
+
+            enemies.push(Enemy::new(
+                enemy_animation,
+                enemy_position,
+                enemy_velocity,
+            ));
+        }
 
         for (y, row) in tile_map.iter_mut().enumerate() {
             for (x, col) in row.iter_mut().enumerate() {
                 let mut stone = 1;
                 let mut woodplank = 2;
-                let mut enemy = 3;
                 let mut grass = 4;
 
                 if col == &mut stone {
@@ -211,24 +229,6 @@ impl GameState {
                     );
 
                     tiles.push(Tile::new(tile_texture, tile_position, false));
-                } else if col == &mut enemy {
-                    let enemy_texture = Texture::new(ctx, "./resources/beer_idle.png")?;
-                    let enemy_animation = Animation::new(
-                        enemy_texture,
-                        Rectangle::row(0.0, 0.0, 48.0, 48.0).take(24).collect(),
-                        twentieth_second,
-                    );
-                    let enemy_position = Vec2::new(
-                        x as f32 * 32.0,
-                        y as f32 * 32.0,
-                    );
-                    let enemy_velocity = 6.0;
-
-                    enemies.push(Enemy::new(
-                        enemy_animation,
-                        enemy_position,
-                        enemy_velocity,
-                    ));
                 } else if col == &mut grass {
                     let tile_texture = Texture::new(ctx, "./resources/grass_tile.png")?;
                     let tile_position = Vec2::new (
