@@ -268,10 +268,11 @@ impl State for GameState {
         // self.player.position.x + (48.0) > tile.position.x &&
         // self.player.position.y < (tile.position.y + tile.texture.height() as f32) &&
         // self.player.position.y + (48.0) > tile.position.y
-        
-        self.camera.position.x = self.player.position.x + 24.0;
-        self.camera.position.y = self.player.position.y + 24.0;
-        self.camera.update();
+        if self.player.alive == true {
+            self.camera.position.x = self.player.position.x + 24.0;
+            self.camera.position.y = self.player.position.y + 24.0;
+            self.camera.update();
+        }
 
         for tile in &self.tiles {
             if collision(self.player.position, tile.position, 48.0, 48.0, 32.0, 32.0) == true && tile.collidable == true {
