@@ -306,9 +306,7 @@ impl State for GameState {
                     32.0,
                     32.0,
                     32.0,) == true &&
-                    tile.collidable == true ||
-                    attack.position.y < ((WINDOW_HEIGHT - WINDOW_HEIGHT) as f32) ||
-                    attack.position.y > (WINDOW_HEIGHT as f32) {
+                    tile.collidable == true {
 
                         // The commented code was a bug but it might be an interesting concept to add
                         // later on in the game
