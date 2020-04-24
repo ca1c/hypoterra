@@ -412,8 +412,8 @@ impl State for GameState {
                 tenth_second,
             );
             let attack_sphere_position = Vec2::new (
-                self.player.position.x,
-                self.player.position.y,
+                self.player.position.x + (48.0 / 4.0),
+                self.player.position.y + (48.0 / 4.0),
             );
 
             let mut attack_sphere_facing: i8 = 1;
