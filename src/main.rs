@@ -283,9 +283,9 @@ impl State for GameState {
         for mut attack in &mut self.player_attack_instances {
             for enemy in &self.enemy_instances {
                 // enemy collision with attack instance
-                if collision(attack.position, enemy.position, 32.0, 32.0, 48.0, 48.0) == true && 
-                enemy.position.x < self.camera.viewport_width as f32 && 
-                enemy.position.y < self.camera.viewport_height as f32 && 
+                if collision(attack.position, enemy.position, 32.0, 32.0, 48.0, 48.0) == true &&
+                enemy.position.x < self.camera.viewport_width as f32 &&
+                enemy.position.y < self.camera.viewport_height as f32 &&
                 enemy.position.x > (self.camera.viewport_width as f32) - (self.camera.viewport_width as f32) &&
                 enemy.position.y > (self.camera.viewport_height as f32) - (self.camera.viewport_height as f32) {
                     let index_1 = self.enemy_instances.iter().position(|r| r.position == enemy.position).unwrap();
@@ -310,23 +310,18 @@ impl State for GameState {
             if enemy.position.x < enemy.range_end && enemy.facing == 0 {
                 enemy.facing = 1;
                 enemy.position.x += enemy.velocity;
-                println!("{}", enemy.facing);
             } else if enemy.position.x > enemy.range_end && enemy.position.x < enemy.range_start && enemy.facing == 0 {
                 enemy.facing = 0;
                 enemy.position.x -= enemy.velocity;
-                println!("{}", enemy.facing);
             } else if enemy.position.x > enemy.range_end && enemy.position.x < enemy.range_start && enemy.facing == 1 {
                 enemy.facing = 1;
                 enemy.position.x += enemy.velocity;
-                println!("{}", enemy.facing);
             } else if enemy.position.x > enemy.range_start && enemy.facing == 1 {
                 enemy.facing = 0;
                 enemy.position.x -= enemy.velocity;
-                println!("{}", enemy.facing);
             } else if enemy.position.x > enemy.range_start && enemy.facing == 0 {
                 enemy.facing = 0;
                 enemy.position.x -= enemy.velocity;
-                println!("{}", enemy.facing);
             }
         }
 
@@ -388,6 +383,8 @@ impl State for GameState {
                 self.player.position.y + (48.0 / 4.0),
             );
 
+            let mut attack_sphere_velocity = 0.0;
+
             let mut attack_sphere_facing: i8 = 1;
 
             let attack_sphere_visible: bool = true;
@@ -400,97 +397,48 @@ impl State for GameState {
 
             if self.player.facing == 1 {
                 // facing right
-                let attack_sphere_velocity = 10.0;
-                self.player_attack_instances.push(PlayerAttackSphere::new(
-                    attack_sphere_animation,
-                    attack_sphere_position,
-                    attack_sphere_velocity,
-                    attack_sphere_facing,
-                    attack_sphere_visible,
-                ));
-
+                attack_sphere_velocity = 10.0;
             } else if self.player.facing == 2 {
                 // facing left
-                let attack_sphere_velocity = -10.0;
-                self.player_attack_instances.push(PlayerAttackSphere::new(
-                    attack_sphere_animation,
-                    attack_sphere_position,
-                    attack_sphere_velocity,
-                    attack_sphere_facing,
-                    attack_sphere_visible,
-                ));
+                attack_sphere_velocity = -10.0;
             } else if self.player.facing == 3 {
                 // facing up
-                let attack_sphere_velocity = -10.0;
-                self.player_attack_instances.push(PlayerAttackSphere::new(
-                    attack_sphere_animation,
-                    attack_sphere_position,
-                    attack_sphere_velocity,
-                    attack_sphere_facing,
-                    attack_sphere_visible,
-                ));
+                attack_sphere_velocity = -10.0;
             } else if self.player.facing == 4 {
                 // facing down
-                let attack_sphere_velocity = 10.0;
-                self.player_attack_instances.push(PlayerAttackSphere::new(
-                    attack_sphere_animation,
-                    attack_sphere_position,
-                    attack_sphere_velocity,
-                    attack_sphere_facing,
-                    attack_sphere_visible,
-                ));
+                attack_sphere_velocity = 10.0;
             } else if self.player.facing == 0 {
                 // go back to the previous facing value because this is the idle pos
                 match self.player.prev_facing {
                     1 => {
-                        let attack_sphere_velocity = 10.0;
+                        attack_sphere_velocity = 10.0;
                         attack_sphere_facing = self.player.prev_facing;
-                        self.player_attack_instances.push(PlayerAttackSphere::new(
-                            attack_sphere_animation,
-                            attack_sphere_position,
-                            attack_sphere_velocity,
-                            attack_sphere_facing,
-                            attack_sphere_visible,
-                        ));
                     },
                     2 => {
-                        let attack_sphere_velocity = -10.0;
+                        attack_sphere_velocity = -10.0;
                         attack_sphere_facing = self.player.prev_facing;
-                        self.player_attack_instances.push(PlayerAttackSphere::new(
-                            attack_sphere_animation,
-                            attack_sphere_position,
-                            attack_sphere_velocity,
-                            attack_sphere_facing,
-                            attack_sphere_visible,
-                        ));
                     },
                     3 => {
-                        let attack_sphere_velocity = -10.0;
+                        attack_sphere_velocity = -10.0;
                         attack_sphere_facing = self.player.prev_facing;
-                        self.player_attack_instances.push(PlayerAttackSphere::new(
-                            attack_sphere_animation,
-                            attack_sphere_position,
-                            attack_sphere_velocity,
-                            attack_sphere_facing,
-                            attack_sphere_visible,
-                        ));
                     },
                     4 => {
-                        let attack_sphere_velocity = 10.0;
+                        attack_sphere_velocity = 10.0;
                         attack_sphere_facing = self.player.prev_facing;
-                        self.player_attack_instances.push(PlayerAttackSphere::new(
-                            attack_sphere_animation,
-                            attack_sphere_position,
-                            attack_sphere_velocity,
-                            attack_sphere_facing,
-                            attack_sphere_visible,
-                        ));
                     },
                     _ => {
                         //nothing
                     },
                 }
             }
+
+            self.player_attack_instances.push(PlayerAttackSphere::new(
+                attack_sphere_animation,
+                attack_sphere_position,
+                attack_sphere_velocity,
+                attack_sphere_facing,
+                attack_sphere_visible,
+            ));
         }
 
         Ok(())
@@ -504,22 +452,16 @@ impl State for GameState {
 
         let _quarter_second = Duration::from_millis(250);
 
+        let mut player_texture: Texture = Texture::new(ctx, "./resources/sorcerer_walking_down.png")?;
+
         if input::is_key_down(ctx, Key::D) {
-            let player_texture_walking_right: Texture = Texture::new(ctx, "./resources/sorcerer_walking_right.png")?;
-            self.player.animation.set_texture(player_texture_walking_right);
-            self.player.animation.advance(ctx);
+            player_texture = Texture::new(ctx, "./resources/sorcerer_walking_right.png")?;
         } else if input::is_key_down(ctx, Key::A) {
-            let player_texture_walking_left: Texture = Texture::new(ctx, "./resources/sorcerer_walking_left.png")?;
-            self.player.animation.set_texture(player_texture_walking_left);
-            self.player.animation.advance(ctx);
+            player_texture = Texture::new(ctx, "./resources/sorcerer_walking_left.png")?;
         } else if input::is_key_down(ctx, Key::W) {
-            let player_texture_walking_left: Texture = Texture::new(ctx, "./resources/sorcerer_walking_up.png")?;
-            self.player.animation.set_texture(player_texture_walking_left);
-            self.player.animation.advance(ctx);
+            player_texture = Texture::new(ctx, "./resources/sorcerer_walking_up.png")?;
         } else if input::is_key_down(ctx, Key::S) {
-            let player_texture_walking_left: Texture = Texture::new(ctx, "./resources/sorcerer_walking_down.png")?;
-            self.player.animation.set_texture(player_texture_walking_left);
-            self.player.animation.advance(ctx);
+            player_texture = Texture::new(ctx, "./resources/sorcerer_walking_down.png")?;
         } else {
 
             // 0: sorcerer_idle, facing none
@@ -529,31 +471,26 @@ impl State for GameState {
             // 4: sorcerer_walking_down, facing down
 
             if self.player.prev_facing == 1 {
-                let player_texture_idle: Texture = Texture::new(ctx, "./resources/sorcerer_idle_right.png")?;
-                self.player.animation.set_texture(player_texture_idle);
-                self.player.animation.advance(ctx);
+                player_texture = Texture::new(ctx, "./resources/sorcerer_idle_right.png")?;
             } else if self.player.prev_facing == 2 {
-                let player_texture_idle: Texture = Texture::new(ctx, "./resources/sorcerer_idle_left.png")?;
-                self.player.animation.set_texture(player_texture_idle);
-                self.player.animation.advance(ctx);
+                player_texture = Texture::new(ctx, "./resources/sorcerer_idle_left.png")?;
             } else if self.player.prev_facing == 3 {
-                let player_texture_idle: Texture = Texture::new(ctx, "./resources/sorcerer_idle_up.png")?;
-                self.player.animation.set_texture(player_texture_idle);
-                self.player.animation.advance(ctx);
+                player_texture = Texture::new(ctx, "./resources/sorcerer_idle_up.png")?;
             } else if self.player.prev_facing == 4 {
-                let player_texture_idle: Texture = Texture::new(ctx, "./resources/sorcerer_idle_down.png")?;
-                self.player.animation.set_texture(player_texture_idle);
-                self.player.animation.advance(ctx);
+                player_texture = Texture::new(ctx, "./resources/sorcerer_idle_down.png")?;
             }
         }
+
+        self.player.animation.set_texture(player_texture);
+        self.player.animation.advance(ctx);
 
         // This will be inside a loop later
         // graphics::draw(ctx, &self.attack_ball.animation, self.attack_ball.position);
 
 
         for x in &self.tiles {
-            if x.position.x < self.camera.viewport_width as f32 && 
-            x.position.y < self.camera.viewport_height as f32 && 
+            if x.position.x < self.camera.viewport_width as f32 &&
+            x.position.y < self.camera.viewport_height as f32 &&
             x.position.x > (self.camera.viewport_width as f32) - (self.camera.viewport_width as f32) &&
             x.position.y > (self.camera.viewport_height as f32) - (self.camera.viewport_height as f32) {
                 graphics::draw(ctx, &x.texture, x.position);
