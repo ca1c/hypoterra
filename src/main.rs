@@ -548,7 +548,12 @@ impl State for GameState {
 
 
         for x in &self.tiles {
-            graphics::draw(ctx, &x.texture, x.position);
+            if x.position.x < self.camera.viewport_width as f32 && 
+            x.position.y < self.camera.viewport_height as f32 && 
+            x.position.x > (self.camera.viewport_width as f32) - (self.camera.viewport_width as f32) &&
+            x.position.y > (self.camera.viewport_height as f32) - (self.camera.viewport_height as f32) {
+                graphics::draw(ctx, &x.texture, x.position);
+            }
         }
 
         for x in &mut self.player_attack_instances {
