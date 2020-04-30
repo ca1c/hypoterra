@@ -1,4 +1,7 @@
 use tetra::math::Vec2;
+use tetra::graphics::Camera;
+
+use crate::game_structs::{Tile};
 
 pub fn collision(
     obj_one: Vec2<f32>,
@@ -21,4 +24,16 @@ pub fn collision(
     } else {
         false
     }
+}
+
+pub fn in_camera_viewport(camera: &Camera, tile: &Tile) -> bool {
+    if tile.position.x < camera.position.x + ((camera.viewport_width as f32) / 2.0) &&
+       tile.position.x > camera.position.x - ((camera.viewport_width as f32) / 2.0) &&
+       tile.position.y < camera.position.y + ((camera.viewport_height as f32) / 2.0) &&
+       tile.position.y > camera.position.y - ((camera.viewport_height as f32) / 2.0) {
+
+           true
+       } else {
+           false
+       }
 }

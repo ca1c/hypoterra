@@ -11,7 +11,7 @@ use std::time::Duration;
 // use std::{thread, time};
 // use tetra::window;
 
-use util::collision;
+use util::{collision, in_camera_viewport};
 use game_structs::{Tile, Player, PlayerAttackSphere, Enemy, GameState};
 
 const WINDOW_WIDTH: f32 = 1280.0;
@@ -489,10 +489,7 @@ impl State for GameState {
 
 
         for x in &self.tiles {
-            if x.position.x < self.camera.viewport_width as f32 &&
-            x.position.y < self.camera.viewport_height as f32 &&
-            x.position.x > (self.camera.viewport_width as f32) - (self.camera.viewport_width as f32) &&
-            x.position.y > (self.camera.viewport_height as f32) - (self.camera.viewport_height as f32) {
+            if in_camera_viewport(&self.camera, x) == true {
                 graphics::draw(ctx, &x.texture, x.position);
             }
         }
