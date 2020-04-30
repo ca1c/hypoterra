@@ -283,7 +283,11 @@ impl State for GameState {
         for mut attack in &mut self.player_attack_instances {
             for enemy in &self.enemy_instances {
                 // enemy collision with attack instance
-                if collision(attack.position, enemy.position, 32.0, 32.0, 48.0, 48.0) == true {
+                if collision(attack.position, enemy.position, 32.0, 32.0, 48.0, 48.0) == true && 
+                enemy.position.x < self.camera.viewport_width as f32 && 
+                enemy.position.y < self.camera.viewport_height as f32 && 
+                enemy.position.x > (self.camera.viewport_width as f32) - (self.camera.viewport_width as f32) &&
+                enemy.position.y > (self.camera.viewport_height as f32) - (self.camera.viewport_height as f32) {
                     let index_1 = self.enemy_instances.iter().position(|r| r.position == enemy.position).unwrap();
 
                     &self.enemy_instances.remove(index_1);
