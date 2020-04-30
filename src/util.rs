@@ -28,9 +28,9 @@ pub fn collision(
 
 pub fn in_camera_viewport(camera: &Camera, tile: &Tile) -> bool {
     if tile.position.x < camera.position.x + ((camera.viewport_width as f32) / 2.0) &&
-       tile.position.x > camera.position.x - ((camera.viewport_width as f32) / 2.0) &&
+       tile.position.x > camera.position.x - (((camera.viewport_width as f32) / 2.0) + 32.0) &&
        tile.position.y < camera.position.y + ((camera.viewport_height as f32) / 2.0) &&
-       tile.position.y > camera.position.y - ((camera.viewport_height as f32) / 2.0) {
+       tile.position.y > camera.position.y - (((camera.viewport_height as f32) / 2.0) + 32.0) {
 
            true
        } else {
