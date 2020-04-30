@@ -8,6 +8,7 @@ use tetra::{Context, ContextBuilder, State};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
 use std::time::Duration;
+use std::thread;
 // use std::{thread, time};
 // use tetra::window;
 
@@ -288,6 +289,10 @@ impl State for GameState {
             if collision(self.player.position, enemy.position, 48.0, 48.0, 48.0, 48.0) == true {
                 self.player.alive = false;
             }
+        }
+    
+        for mut enemy in &mut self.enemy_instances {
+            enemy.position.x -= 3.0;
         }
 
         // Attack Instance Loop
