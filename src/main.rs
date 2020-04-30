@@ -335,7 +335,7 @@ impl State for GameState {
         }
 
         // Attack input handling
-        if input::is_key_pressed(ctx, Key::Space) && self.player_attack_instances.len() < 6 {
+        if input::is_key_pressed(ctx, Key::Space) && self.player_attack_instances.len() < 6 && self.player.alive == true {
             let tenth_second = Duration::from_millis(100);
             let attack_sphere_texture = Texture::new(ctx, "./resources/attack_ball.png")?;
             let attack_sphere_animation = Animation::new(
