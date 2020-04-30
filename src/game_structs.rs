@@ -30,6 +30,9 @@ pub struct Enemy {
     pub animation: Animation,
     pub position: Vec2<f32>,
     pub velocity: f32,
+    pub range_end: f32,
+    pub range_start: f32,
+    pub facing: i8,
 }
 
 pub struct GameState {

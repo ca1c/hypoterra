@@ -8,7 +8,6 @@ use tetra::{Context, ContextBuilder, State};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
 use std::time::Duration;
-use std::thread;
 // use std::{thread, time};
 // use tetra::window;
 
@@ -77,11 +76,17 @@ impl Enemy {
         animation: Animation,
         position: Vec2<f32>,
         velocity: f32,
+        range_end: f32,
+        range_start: f32,
+        facing: i8,
     ) -> Enemy {
         Enemy {
             animation,
             position,
             velocity,
+            range_end,
+            range_start,
+            facing,
         }
     }
 }
@@ -131,12 +136,18 @@ impl GameState {
                 twentieth_second,
             );
             let enemy_position = pos;
-            let enemy_velocity = 6.0;
+            let enemy_velocity = 3.0;
+            let enemy_range_end = &enemy_position.x - 200.0;
+            let enemy_range_start = &enemy_position.x + 5.0;
+            let enemy_facing = 0;
 
             enemies.push(Enemy::new(
                 enemy_animation,
                 enemy_position,
                 enemy_velocity,
+                enemy_range_end,
+                enemy_range_start,
+                enemy_facing,
             ));
         }
 
@@ -290,9 +301,29 @@ impl State for GameState {
                 self.player.alive = false;
             }
         }
-    
+
         for mut enemy in &mut self.enemy_instances {
-            enemy.position.x -= 3.0;
+            if enemy.position.x < enemy.range_end && enemy.facing == 0 {
+                enemy.facing = 1;
+                enemy.position.x += enemy.velocity;
+                println!("{}", enemy.facing);
+            } else if enemy.position.x > enemy.range_end && enemy.position.x < enemy.range_start && enemy.facing == 0 {
+                enemy.facing = 0;
+                enemy.position.x -= enemy.velocity;
+                println!("{}", enemy.facing);
+            } else if enemy.position.x > enemy.range_end && enemy.position.x < enemy.range_start && enemy.facing == 1 {
+                enemy.facing = 1;
+                enemy.position.x += enemy.velocity;
+                println!("{}", enemy.facing);
+            } else if enemy.position.x > enemy.range_start && enemy.facing == 1 {
+                enemy.facing = 0;
+                enemy.position.x -= enemy.velocity;
+                println!("{}", enemy.facing);
+            } else if enemy.position.x > enemy.range_start && enemy.facing == 0 {
+                enemy.facing = 0;
+                enemy.position.x -= enemy.velocity;
+                println!("{}", enemy.facing);
+            }
         }
 
         // Attack Instance Loop
