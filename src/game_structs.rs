@@ -35,6 +35,11 @@ pub struct Enemy {
     pub facing: i8,
 }
 
+// pub struct Npc {
+//     pub animation: Animation,
+//     pub position: Vec2<f32>,
+// }
+
 pub struct GameState {
     pub player: Player,
     pub tiles: Vec<Tile>,

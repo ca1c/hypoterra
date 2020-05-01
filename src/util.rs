@@ -1,7 +1,7 @@
 use tetra::math::Vec2;
 use tetra::graphics::Camera;
 
-use crate::game_structs::{Tile};
+use crate::game_structs::{Tile, PlayerAttackSphere};
 
 pub fn collision(
     obj_one: Vec2<f32>,
@@ -31,6 +31,18 @@ pub fn in_camera_viewport(camera: &Camera, tile: &Tile) -> bool {
        tile.position.x > camera.position.x - (((camera.viewport_width as f32) / 2.0) + 32.0) &&
        tile.position.y < camera.position.y + ((camera.viewport_height as f32) / 2.0) &&
        tile.position.y > camera.position.y - (((camera.viewport_height as f32) / 2.0) + 32.0) {
+
+           true
+       } else {
+           false
+       }
+}
+
+pub fn in_camera_viewport_attack(camera: &Camera, attack: &PlayerAttackSphere) -> bool {
+    if attack.position.x < camera.position.x + ((camera.viewport_width as f32) / 2.0) &&
+       attack.position.x > camera.position.x - (((camera.viewport_width as f32) / 2.0) + 32.0) &&
+       attack.position.y < camera.position.y + ((camera.viewport_height as f32) / 2.0) &&
+       attack.position.y > camera.position.y - (((camera.viewport_height as f32) / 2.0) + 32.0) {
 
            true
        } else {

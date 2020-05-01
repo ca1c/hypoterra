@@ -7,11 +7,12 @@ use tetra::graphics::animation::Animation;
 use tetra::{Context, ContextBuilder, State};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
+use tetra::time;
 use std::time::Duration;
 // use std::{thread, time};
 // use tetra::window;
 
-use util::{collision, in_camera_viewport};
+use util::{collision, in_camera_viewport, in_camera_viewport_attack};
 use game_structs::{Tile, Player, PlayerAttackSphere, Enemy, GameState};
 
 const WINDOW_WIDTH: f32 = 1280.0;
@@ -250,7 +251,8 @@ impl State for GameState {
                     32.0,
                     32.0,
                     32.0,) == true &&
-                    tile.collidable == true {
+                    tile.collidable == true ||
+                    in_camera_viewport_attack(&self.camera, attack) == false {
 
                         // The commented code was a bug but it might be an interesting concept to add
                         // later on in the game
