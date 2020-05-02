@@ -7,13 +7,12 @@ use tetra::graphics::animation::Animation;
 use tetra::{Context, ContextBuilder, State};
 use tetra::input::{self, Key};
 use tetra::math::Vec2;
-use tetra::time;
 use std::time::Duration;
 // use std::{thread, time};
 // use tetra::window;
 
 use util::{collision, in_camera_viewport, in_camera_viewport_attack};
-use game_structs::{Tile, Player, PlayerAttackSphere, Enemy, GameState};
+use game_structs::{Tile, Player, PlayerAttackSphere, Enemy, GameState, Npc};
 
 const WINDOW_WIDTH: f32 = 1280.0;
 const WINDOW_HEIGHT: f32 = 960.0;
@@ -50,6 +49,18 @@ impl Player {
             facing,
             prev_facing,
             alive,
+        }
+    }
+}
+
+impl Npc {
+    fn new(
+        animation: Animation,
+        position: Vec2<f32>,
+    ) -> Npc {
+        Npc {
+            animation,
+            position,
         }
     }
 }
@@ -119,6 +130,17 @@ impl GameState {
         let player_facing = 0;
         let player_prev_facing = 4;
         let player_alive = true;
+
+        let npc_texture = Texture::new(ctx, "./resources/scientist_idle.png")?;
+        let npc_animation = Animation::new(
+            npc_texture,
+            Rectangle::row(0.0, 0.0, 48.0, 48.0).take(2).collect(),
+            quarter_second,
+        );
+        let npc_position = Vec2::new (
+            650.0,
+            200.0,
+        );
 
         let player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
 
@@ -198,6 +220,7 @@ impl GameState {
                 player_prev_facing,
                 player_alive,
             ),
+            npc: Npc::new(npc_animation, npc_position),
             tiles: tiles,
             player_attack_instances: player_attack_instances,
             enemy_instances: enemies,
@@ -502,6 +525,9 @@ impl State for GameState {
         }
 
         if self.player.alive == true {
+            graphics::draw(ctx, &self.npc.animation, self.npc.position);
+            self.npc.animation.advance(ctx);
+
             graphics::draw(ctx, &self.player.animation, self.player.position);
         }
 
