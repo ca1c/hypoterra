@@ -2,7 +2,7 @@ mod level1;
 mod util;
 mod game_structs;
 
-use tetra::graphics::{self, Color, Texture, Rectangle, Camera};
+use tetra::graphics::{self, Color, Texture, Rectangle, Camera, Text, Font};
 use tetra::graphics::animation::Animation;
 use tetra::{Context, ContextBuilder, State};
 use tetra::input::{self, Key};
@@ -12,7 +12,7 @@ use std::time::Duration;
 // use tetra::window;
 
 use util::{collision, in_camera_viewport, in_camera_viewport_attack};
-use game_structs::{Tile, Player, PlayerAttackSphere, Enemy, GameState, Npc};
+use game_structs::{Tile, Player, PlayerAttackSphere, Enemy, GameState, Npc, Help_Menu};
 
 const WINDOW_WIDTH: f32 = 1280.0;
 const WINDOW_HEIGHT: f32 = 960.0;
@@ -103,6 +103,22 @@ impl Enemy {
     }
 }
 
+impl Help_Menu {
+    fn new(
+        texture: Texture,
+        position: Vec2<f32>,
+        visible: bool,
+        text: String,
+    ) -> Help_Menu {
+        Help_Menu {
+            texture,
+            position,
+            visible,
+            text,
+        }
+    }
+}
+
 
 impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState>{
@@ -142,8 +158,16 @@ impl GameState {
             200.0,
         );
 
-        let player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
+        let help_menu_texture = Texture::new(ctx, "./resources/help_menu.png")?;
+        // this will change in the update function
+        let help_menu_position = Vec2::new(
+            0.0,
+            0.0,
+        );
+        let help_menu_visible = false;
+        let help_menu_text = String::new();
 
+        let player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
 
         let mut tiles: Vec<Tile> = Vec::new();
 
@@ -225,6 +249,12 @@ impl GameState {
             player_attack_instances: player_attack_instances,
             enemy_instances: enemies,
             camera: Camera::with_window_size(ctx),
+            help_menu: Help_Menu::new(
+                help_menu_texture,
+                help_menu_position,
+                help_menu_visible,
+                help_menu_text,
+            )
         })
     }
 }
@@ -240,6 +270,18 @@ impl State for GameState {
             self.camera.position.x = self.player.position.x + 24.0;
             self.camera.position.y = self.player.position.y + 24.0;
             self.camera.update();
+        }
+
+        if collision(self.player.position, self.npc.position, 48.0, 48.0, 48.0, 48.0) == true {
+            self.help_menu.visible = true;
+            self.help_menu.text = String::from("Press T to talk.");
+        } else {
+            self.help_menu.visible = false;
+        }
+
+        if self.help_menu.visible == true {
+            self.help_menu.position.x = self.camera.position.x - 590.0;
+            self.help_menu.position.y = self.camera.position.y + 360.0;
         }
 
         for tile in &self.tiles {
@@ -534,6 +576,18 @@ impl State for GameState {
         for x in &mut self.enemy_instances {
             graphics::draw(ctx, &x.animation, x.position);
             x.animation.advance(ctx);
+        }
+
+        if self.help_menu.visible == true {
+            graphics::draw(ctx, &self.help_menu.texture, self.help_menu.position);
+
+            let help_menu_font = Font::from_file_data(ctx, include_bytes!("../resources/prstart.ttf"));
+            let help_menu_text = Text::new(&self.help_menu.text, help_menu_font, 16.0);
+            let help_menu_position = Vec2::new(
+                self.help_menu.position.x + 25.0,
+                self.help_menu.position.y + 25.0,
+            );
+            graphics::draw(ctx, &help_menu_text, help_menu_position);
         }
 
         Ok(())

@@ -40,6 +40,13 @@ pub struct Npc {
     pub position: Vec2<f32>,
 }
 
+pub struct Help_Menu {
+    pub texture: Texture,
+    pub position: Vec2<f32>,
+    pub visible: bool,
+    pub text: String,
+}
+
 pub struct GameState {
     pub player: Player,
     pub npc: Npc,
@@ -47,4 +54,5 @@ pub struct GameState {
     pub player_attack_instances: Vec<PlayerAttackSphere>,
     pub enemy_instances: Vec<Enemy>,
     pub camera: Camera,
+    pub help_menu: Help_Menu,
 }
