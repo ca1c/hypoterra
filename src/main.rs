@@ -12,7 +12,7 @@ use std::time::Duration;
 // use tetra::window;
 
 use util::{collision, in_camera_viewport, in_camera_viewport_attack};
-use game_structs::{Tile, Player, PlayerAttackSphere, Enemy, GameState, Npc, Help_Menu};
+use game_structs::{Tile, Player, PlayerAttackSphere, Enemy, GameState, Npc, Help_Menu, DialogueBox};
 
 const WINDOW_WIDTH: f32 = 1280.0;
 const WINDOW_HEIGHT: f32 = 960.0;
@@ -119,6 +119,22 @@ impl Help_Menu {
     }
 }
 
+impl DialogueBox {
+    fn new(
+        texture: Texture,
+        position: Vec2<f32>,
+        visible: bool,
+        text: String,
+    ) -> DialogueBox {
+        DialogueBox {
+            texture,
+            position,
+            visible,
+            text,
+        }
+    }
+}
+
 
 impl GameState {
     fn new(ctx: &mut Context) -> tetra::Result<GameState>{
@@ -166,6 +182,14 @@ impl GameState {
         );
         let help_menu_visible = false;
         let help_menu_text = String::new();
+
+        let dialogue_box_texture = Texture::new(ctx, "./resources/dialogue_box.png")?;
+        let dialogue_box_position = Vec2::new(
+            0.0,
+            0.0,
+        );
+        let dialogue_box_visible = false;
+        let dialogue_box_text = String::new();
 
         let player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
 
@@ -254,7 +278,13 @@ impl GameState {
                 help_menu_position,
                 help_menu_visible,
                 help_menu_text,
-            )
+            ),
+            dialogue_box: DialogueBox::new(
+                dialogue_box_texture,
+                dialogue_box_position,
+                dialogue_box_visible,
+                dialogue_box_text,
+            ),
         })
     }
 }
@@ -272,9 +302,14 @@ impl State for GameState {
             self.camera.update();
         }
 
-        if collision(self.player.position, self.npc.position, 48.0, 48.0, 48.0, 48.0) == true {
+        if collision(self.player.position, self.npc.position, 48.0, 48.0, 48.0, 48.0) == true && self.dialogue_box.visible == false {
             self.help_menu.visible = true;
             self.help_menu.text = String::from("Press T to talk.");
+
+            if input::is_key_pressed(ctx, Key::T) {
+                self.dialogue_box.visible = true;
+                self.dialogue_box.text = String::from("Hi! Welcome to HYPOTERRA, the land that may never see the light of day.");
+            }
         } else {
             self.help_menu.visible = false;
         }
@@ -282,6 +317,11 @@ impl State for GameState {
         if self.help_menu.visible == true {
             self.help_menu.position.x = self.camera.position.x - 590.0;
             self.help_menu.position.y = self.camera.position.y + 360.0;
+        }
+
+        if self.dialogue_box.visible == true {
+            self.dialogue_box.position.x = self.camera.position.x - 440.0;
+            self.dialogue_box.position.y = self.camera.position.y + 260.0;
         }
 
         for tile in &self.tiles {
@@ -583,11 +623,23 @@ impl State for GameState {
 
             let help_menu_font = Font::from_file_data(ctx, include_bytes!("../resources/prstart.ttf"));
             let help_menu_text = Text::new(&self.help_menu.text, help_menu_font, 16.0);
-            let help_menu_position = Vec2::new(
+            let help_menu_text_position = Vec2::new(
                 self.help_menu.position.x + 25.0,
                 self.help_menu.position.y + 25.0,
             );
-            graphics::draw(ctx, &help_menu_text, help_menu_position);
+            graphics::draw(ctx, &help_menu_text, help_menu_text_position);
+        }
+
+        if self.dialogue_box.visible == true {
+            let dialogue_box_font = Font::from_file_data(ctx, include_bytes!("../resources/prstart.ttf"));
+            let dialogue_box_text = Text::new(&self.dialogue_box.text, dialogue_box_font, 12.0);
+            let dialogue_box_text_position = Vec2::new(
+                self.dialogue_box.position.x + 15.0,
+                self.dialogue_box.position.y + 25.0,
+            );
+
+            graphics::draw(ctx, &self.dialogue_box.texture, self.dialogue_box.position);
+            graphics::draw(ctx, &dialogue_box_text, dialogue_box_text_position);
         }
 
         Ok(())
