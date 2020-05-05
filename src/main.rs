@@ -125,12 +125,16 @@ impl DialogueBox {
         position: Vec2<f32>,
         visible: bool,
         text: String,
+        output_text: String,
+        text_wrap_finished: bool,
     ) -> DialogueBox {
         DialogueBox {
             texture,
             position,
             visible,
             text,
+            output_text,
+            text_wrap_finished,
         }
     }
 }
@@ -190,6 +194,8 @@ impl GameState {
         );
         let dialogue_box_visible = false;
         let dialogue_box_text = String::new();
+        let dialogue_box_output_text = String::from(":");
+        let dialogue_box_text_wrap_finished = false;
 
         let player_attack_instances: Vec<PlayerAttackSphere> = Vec::new();
 
@@ -284,6 +290,8 @@ impl GameState {
                 dialogue_box_position,
                 dialogue_box_visible,
                 dialogue_box_text,
+                dialogue_box_output_text,
+                dialogue_box_text_wrap_finished,
             ),
         })
     }
@@ -308,7 +316,7 @@ impl State for GameState {
 
             if input::is_key_pressed(ctx, Key::T) {
                 self.dialogue_box.visible = true;
-                self.dialogue_box.text = String::from("Hi! Welcome to HYPOTERRA, the land that may never see the light of day.");
+                self.dialogue_box.text = String::from("Hi! Welcome to HYPOTERRA, the land that may never see the light of day. Would you like to learn of the HYPOTERRA prophecy?");
             }
         } else {
             self.help_menu.visible = false;
@@ -631,12 +639,38 @@ impl State for GameState {
         }
 
         if self.dialogue_box.visible == true {
+            let string_char_vec: Vec<char> = self.dialogue_box.text.chars().collect();
             let dialogue_box_font = Font::from_file_data(ctx, include_bytes!("../resources/prstart.ttf"));
-            let dialogue_box_text = Text::new(&self.dialogue_box.text, dialogue_box_font, 12.0);
+            let dialogue_box_text = Text::new(&self.dialogue_box.output_text, dialogue_box_font, 12.0);
             let dialogue_box_text_position = Vec2::new(
                 self.dialogue_box.position.x + 15.0,
                 self.dialogue_box.position.y + 25.0,
             );
+
+            let mut current_line: String = String::from(":");
+
+            if self.dialogue_box.text_wrap_finished == false {
+                for c in &string_char_vec {
+                    self.dialogue_box.output_text.push_str(&c.to_string());
+                    current_line.push_str(&c.to_string());
+                    let test_text = Text::new(&current_line, dialogue_box_font, 12.0);
+                    // graphics::draw(ctx, &test_text, dialogue_box_text_position);
+
+                    if test_text.get_bounds(ctx).unwrap().width > 840.0 {
+                        let new_line: &str = "\n";
+                        self.dialogue_box.output_text.push_str(new_line);
+                        current_line = String::from(":");
+                    }
+
+                    let index = string_char_vec.iter().position(|r| r == c).unwrap();
+
+                    if index == string_char_vec.len() - 1 {
+                        self.dialogue_box.text_wrap_finished = true;
+                    }
+
+                    println!("{}", self.dialogue_box.text_wrap_finished);
+                }
+            }
 
             graphics::draw(ctx, &self.dialogue_box.texture, self.dialogue_box.position);
             graphics::draw(ctx, &dialogue_box_text, dialogue_box_text_position);

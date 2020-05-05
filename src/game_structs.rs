@@ -52,6 +52,8 @@ pub struct DialogueBox {
     pub position: Vec2<f32>,
     pub visible: bool,
     pub text: String,
+    pub output_text: String,
+    pub text_wrap_finished: bool,
 }
 
 pub struct GameState {
